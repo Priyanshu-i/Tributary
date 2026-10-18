@@ -25,7 +25,16 @@ export function createAppState(dbPath?: string): AppState {
   if (dbPath === ':memory:') {
     db = new Database(':memory:');
   } else {
-    const resolvedPath = path.resolve(process.cwd(), dbPath || process.env.DATABASE_URL || 'tributary.db');
+    let dbFile = dbPath || process.env.SQLITE_PATH;
+    if (!dbFile) {
+      const envDb = process.env.DATABASE_URL;
+      if (envDb && !envDb.startsWith('postgres:') && !envDb.startsWith('postgresql:')) {
+        dbFile = envDb;
+      } else {
+        dbFile = './data/tributary.sqlite';
+      }
+    }
+    const resolvedPath = path.resolve(process.cwd(), dbFile);
     const dir = path.dirname(resolvedPath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
