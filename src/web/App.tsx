@@ -7,6 +7,7 @@ import { PayeeStatement } from './components/PayeeStatement.js';
 import { ChaosDrawer } from './components/ChaosDrawer.js';
 import { DealSpec } from '../core-engine/types.js';
 import { ChaosTestResult } from '../paypal-gateway/types.js';
+import { apiRequest, checkApiHealth } from './lib/api.js';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'deal-studio' | 'simulator' | 'ledger' | 'statements'>('deal-studio');
@@ -21,6 +22,7 @@ export const App: React.FC = () => {
   const [isChaosOpen, setIsChaosOpen] = useState<boolean>(false);
   const [chaosResults, setChaosResults] = useState<ChaosTestResult[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [apiConnected, setApiConnected] = useState<boolean>(true);
   const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
   // Auto-clear notification after 6 seconds
@@ -31,12 +33,30 @@ export const App: React.FC = () => {
     }
   }, [notification]);
 
+  // Periodic API Health Poller (every 5 seconds)
+  useEffect(() => {
+    let isMounted = true;
+    const pollHealth = async () => {
+      try {
+        const health = await checkApiHealth();
+        if (isMounted) setApiConnected(health.status === 'ok');
+      } catch {
+        if (isMounted) setApiConnected(false);
+      }
+    };
+
+    pollHealth();
+    const interval = setInterval(pollHealth, 5000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
   // Load ledger details for a deal
   const refreshLedger = useCallback(async (dealId: string) => {
     try {
-      const res = await fetch(`/api/deals/${dealId}/ledger`);
-      if (!res.ok) return;
-      const data = await res.json();
+      const data = await apiRequest<any>(`/api/deals/${dealId}/ledger`);
       if (data.success) {
         setLedgerState(data.ledgerState);
         setSales(data.sales || []);
@@ -57,12 +77,10 @@ export const App: React.FC = () => {
   const handleLoadMoonlitPreset = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/demo/load-preset', {
+      const data = await apiRequest<any>('/api/demo/load-preset', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ preset: 'moonlit' }),
       });
-      const data = await res.json();
       if (data.success) {
         await refreshLedger(data.dealId);
         setNotification({
@@ -81,12 +99,10 @@ export const App: React.FC = () => {
   const handleLoadCreatorPreset = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/demo/load-preset', {
+      const data = await apiRequest<any>('/api/demo/load-preset', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ preset: 'creator' }),
       });
-      const data = await res.json();
       if (data.success) {
         await refreshLedger(data.dealId);
         setNotification({
@@ -105,11 +121,8 @@ export const App: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        const sysRes = await fetch('/api/system/status');
-        if (sysRes.ok) {
-          const sysData = await sysRes.json();
-          setIsPaused(sysData.isPayoutsPaused || false);
-        }
+        const sysData = await apiRequest<any>('/api/system/status');
+        setIsPaused(sysData.isPayoutsPaused || false);
       } catch (err) {
         console.warn('System status check skipped:', err);
       }
@@ -121,12 +134,10 @@ export const App: React.FC = () => {
   // Toggle Pause (Kill-Switch)
   const handleTogglePause = async () => {
     try {
-      const res = await fetch('/api/system/pause', {
+      const data = await apiRequest<any>('/api/system/pause', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ paused: !isPaused }),
       });
-      const data = await res.json();
       if (data.success) {
         setIsPaused(data.isPayoutsPaused);
         setNotification({
@@ -143,12 +154,10 @@ export const App: React.FC = () => {
   const handleCompile = async (text: string, answers?: Record<string, string>) => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/deals/compile', {
+      const data = await apiRequest<any>('/api/deals/compile', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ agreementText: text, clarificationAnswers: answers }),
       });
-      const data = await res.json();
       if (data.success) {
         setCurrentDeal(data.spec);
         setDealStatus('DRAFT');
@@ -157,8 +166,6 @@ export const App: React.FC = () => {
           message: `Agreement compiled successfully! Source: ${data.source}. SHA-256: ${data.spec.sha256Hash?.slice(0, 16)}...`,
         });
         return data;
-      } else {
-        throw new Error(data.error || 'Compilation failed');
       }
     } catch (err: any) {
       setNotification({ type: 'error', message: `Compiler Error: ${err.message}` });
@@ -172,8 +179,7 @@ export const App: React.FC = () => {
   const handleLockDeal = async (dealId: string) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/deals/${dealId}/lock`, { method: 'POST' });
-      const data = await res.json();
+      const data = await apiRequest<any>(`/api/deals/${dealId}/lock`, { method: 'POST' });
       if (data.success) {
         setDealStatus('LOCKED');
         if (data.spec) setCurrentDeal(data.spec);
@@ -182,8 +188,6 @@ export const App: React.FC = () => {
           message: `Deal locked and hash-pinned! SHA-256: ${data.sha256Hash.slice(0, 16)}... Ready for execution.`,
         });
         return data;
-      } else {
-        throw new Error(data.error || 'Lock failed');
       }
     } catch (err: any) {
       setNotification({ type: 'error', message: `Lock Error: ${err.message}` });
@@ -198,9 +202,8 @@ export const App: React.FC = () => {
     if (!currentDeal) return;
     setIsLoading(true);
     try {
-      const res = await fetch('/api/checkout/capture-order', {
+      const data = await apiRequest<any>('/api/checkout/capture-order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           dealId: currentDeal.dealId,
           grossCents: 10000,
@@ -208,18 +211,12 @@ export const App: React.FC = () => {
           simulateSandbox: false,
         }),
       });
-      const data = await res.json();
       if (data.success) {
         await refreshLedger(currentDeal.dealId);
         setActiveTab('ledger');
         setNotification({
           type: 'success',
           message: `Captured $100.00 sale! Maya recoup finished ($30.00) + Maya split ($22.57) = $52.57 payout. Arjun: $16.93, Lina: $11.28, Dev: $5.64. Conservation verified!`,
-        });
-      } else {
-        setNotification({
-          type: 'error',
-          message: data.message || data.error || 'Sale execution halted.',
         });
       }
     } catch (err: any) {
@@ -243,12 +240,10 @@ export const App: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/checkout/sales/${saleId}/refund`, {
+      const data = await apiRequest<any>(`/api/checkout/sales/${saleId}/refund`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amountCents: 5000, feeCreditCents: 0 }),
       });
-      const data = await res.json();
       if (data.success) {
         await refreshLedger(currentDeal.dealId);
         setActiveTab('ledger');
@@ -256,8 +251,6 @@ export const App: React.FC = () => {
           type: 'success',
           message: `Processed $50.00 refund! Reserve drained $9.60 -> $0.00. Remaining deficit $40.40 allocated to payees for recovery netting.`,
         });
-      } else {
-        setNotification({ type: 'error', message: data.error || 'Refund failed' });
       }
     } catch (err: any) {
       setNotification({ type: 'error', message: `Refund error: ${err.message}` });
@@ -270,8 +263,7 @@ export const App: React.FC = () => {
   const handleSimulate = async (dealId: string) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/deals/${dealId}/simulate`, { method: 'POST' });
-      const data = await res.json();
+      const data = await apiRequest<any>(`/api/deals/${dealId}/simulate`, { method: 'POST' });
       return data;
     } catch (err: any) {
       console.error('Simulation error:', err);
@@ -285,8 +277,7 @@ export const App: React.FC = () => {
   const handleRunChaos = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/chaos/run', { method: 'POST' });
-      const data = await res.json();
+      const data = await apiRequest<any>('/api/chaos/run', { method: 'POST' });
       if (data.success && data.report) {
         setChaosResults(data.report.results || []);
         if (currentDeal) {
@@ -309,9 +300,7 @@ export const App: React.FC = () => {
   const handleFetchStatement = async (payeeId: string) => {
     if (!currentDeal) return null;
     try {
-      const res = await fetch(`/api/deals/${currentDeal.dealId}/statements/${payeeId}`);
-      if (!res.ok) return null;
-      return await res.json();
+      return await apiRequest<any>(`/api/deals/${currentDeal.dealId}/statements/${payeeId}`);
     } catch (err: any) {
       console.error('Failed to fetch statement:', err);
       return null;
@@ -319,7 +308,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-white">
+    <div className="min-h-screen bg-[#F8F9FA] text-[#202124] flex flex-col font-sans">
       {/* Top Navigation & Judge Quick-Load Bar */}
       <Navbar
         activeTab={activeTab}
@@ -332,18 +321,19 @@ export const App: React.FC = () => {
         onRunRefund={() => handleRunRefund()}
         onOpenChaos={() => setIsChaosOpen(true)}
         isLoading={isLoading}
+        apiConnected={apiConnected}
       />
 
-      {/* Floating Notification Banner */}
+      {/* Floating Notification Toast */}
       {notification && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-md animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-6 right-6 z-50 max-w-md animate-in fade-in slide-in-from-bottom-4 duration-200">
           <div
-            className={`p-4 rounded-xl border shadow-2xl backdrop-blur-md flex items-start gap-3 ${
+            className={`p-4 rounded-lg border shadow-lg flex items-start gap-3 ${
               notification.type === 'success'
-                ? 'bg-emerald-950/90 border-emerald-500/40 text-emerald-200'
+                ? 'bg-[#E6F4EA] border-[#CEEAD6] text-[#137333]'
                 : notification.type === 'error'
-                ? 'bg-red-950/90 border-red-500/40 text-red-200'
-                : 'bg-cyan-950/90 border-cyan-500/40 text-cyan-200'
+                ? 'bg-[#FCE8E6] border-[#FAD2CF] text-[#C5221F]'
+                : 'bg-[#E8F0FE] border-[#D2E3FC] text-[#1967D2]'
             }`}
           >
             <div className="flex-1 text-xs leading-relaxed font-medium">
@@ -351,7 +341,7 @@ export const App: React.FC = () => {
             </div>
             <button
               onClick={() => setNotification(null)}
-              className="text-slate-400 hover:text-white text-xs font-bold px-1"
+              className="text-[#5F6368] hover:text-[#202124] text-xs font-bold px-1"
             >
               ✕
             </button>

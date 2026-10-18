@@ -97,279 +97,264 @@ Hold 10% for refunds for 14 days, and only pay out when someone has at least $25
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#DADCE0] gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
-            <FileText className="w-6 h-6 text-cyan-400" />
-            Screen 1: Deal Studio & Neuro-Symbolic Compiler
-          </h1>
-          <p className="text-sm text-slate-400">
-            Paste plain-English contracts, resolve blocking financial ambiguities, and sign an immutable SHA-256 pinned spec.
+          <h1 className="text-xl font-bold text-[#202124]">Deal Studio</h1>
+          <p className="text-xs text-[#5F6368] mt-0.5">
+            Compile natural language revenue-share contracts into verified, executable integer-cent specifications.
           </p>
         </div>
-
         <div className="flex items-center gap-2">
-          {dealStatus === 'LOCKED' ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-mono font-medium">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              STATUS: LOCKED & HASH-PINNED
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-mono font-medium">
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
-              STATUS: DRAFT (REQUIRES SIGN-OFF)
-            </span>
-          )}
+          <span
+            className={`px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider border ${
+              dealStatus === 'LOCKED'
+                ? 'bg-[#E6F4EA] text-[#137333] border-[#CEEAD6]'
+                : 'bg-[#FEF7E0] text-[#B06000] border-[#FEEFC3]'
+            }`}
+          >
+            {dealStatus === 'LOCKED' ? 'Agreement Locked & Pinned' : 'Draft Mode'}
+          </span>
+          <span className="px-2.5 py-1 rounded text-xs font-medium bg-[#F1F3F4] text-[#3C4043] border border-[#DADCE0]">
+            Source: {compilerSource}
+          </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Text Editor & Clarifications */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                Plain-English Revenue-Share Agreement
-              </label>
-
-              <div className="flex items-center gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setAgreementText(
-                      `Team Moonlit sells an indie adventure game. Maya fronted a $400 art cost and must be repaid first from sales. After Maya is repaid, all revenue splits 40% to Maya, 30% to Arjun, 20% to Lina, and 10% to Dev. Once total net revenue hits $2,000, the split changes to an even 25% each. Hold 10% for refunds for 14 days, and only pay out when someone has at least $25.`
-                    )
-                  }
-                  className="text-cyan-400 hover:text-cyan-300 transition"
-                >
-                  Load Moonlit
-                </button>
-                <span className="text-slate-600">|</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setAgreementText(
-                      `Alex (Creator) and Apex Media launch an online course. Apex fronts $500 in ad spend which is recouped first. Thereafter, profits split 50% to Alex and 50% to Apex until $3,000 in net sales, after which Alex gets 60% and Apex gets 40%. A 10% reserve is held for student chargebacks.`
-                    )
-                  }
-                  className="text-amber-400 hover:text-amber-300 transition"
-                >
-                  Load Creator
-                </button>
+      {/* Main Grid: Left Editor + Right Spec */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Natural Language Input & Clarifications */}
+        <div className="lg:col-span-6 space-y-5">
+          {/* Editor Box */}
+          <div className="bg-white border border-[#DADCE0] rounded-lg shadow-sm overflow-hidden">
+            <div className="px-4 py-3 bg-[#F8F9FA] border-b border-[#DADCE0] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#1A73E8]" />
+                <span className="text-xs font-semibold text-[#202124] uppercase tracking-wider">
+                  Revenue-Share Agreement Draft
+                </span>
               </div>
+              <span className="text-[11px] text-[#5F6368]">Plain English or Legal Terms</span>
             </div>
 
-            <textarea
-              value={agreementText}
-              onChange={(e) => setAgreementText(e.target.value)}
-              rows={6}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition font-mono leading-relaxed"
-              placeholder="Paste contract terms here..."
-            />
+            <div className="p-4">
+              <textarea
+                value={agreementText}
+                onChange={(e) => setAgreementText(e.target.value)}
+                rows={7}
+                placeholder="Paste natural language revenue agreement here..."
+                className="w-full p-3 text-xs text-[#202124] bg-white border border-[#DADCE0] rounded-lg focus:outline-none focus:border-[#1A73E8] focus:ring-1 focus:ring-[#1A73E8] font-sans leading-relaxed resize-none transition-colors"
+              />
 
-            <div className="mt-4 flex items-center justify-between">
-              <div className="text-xs text-slate-500">
-                Mode: <span className="text-cyan-400 font-mono">[{compilerSource}]</span>
+              <div className="mt-3 flex items-center justify-between">
+                <div className="text-[11px] text-[#5F6368]">
+                  Strict Air-Gap: AI extracts structured rules; engine enforces all math.
+                </div>
+                <button
+                  onClick={handleRunCompile}
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-[#1A73E8] text-white hover:bg-[#1557B0] active:bg-[#174EA6] rounded-md text-xs font-semibold flex items-center gap-2 shadow-sm transition-colors disabled:opacity-50"
+                >
+                  <Sparkles className="w-3.5 h-3.5 stroke-[2]" />
+                  <span>{isLoading ? 'Compiling...' : 'Compile Agreement'}</span>
+                </button>
               </div>
-
-              <button
-                type="button"
-                onClick={handleRunCompile}
-                disabled={isLoading}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-slate-950 font-semibold text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/10 transition disabled:opacity-50"
-              >
-                <Sparkles className="w-4 h-4 text-slate-950" />
-                Compile & Interrogate Agreement
-              </button>
             </div>
           </div>
 
-          {/* Blocking Clarification Cards */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-cyan-400" />
-                Blocking Clarifications ({ambiguities.length} Unresolved)
-              </h2>
-              {ambiguities.length > 0 && (
-                <button
-                  onClick={handleConfirmAllClarifications}
-                  className="text-xs text-cyan-400 hover:underline font-medium"
-                >
-                  Accept All Recommended Defaults
-                </button>
-              )}
-            </div>
-
-            {ambiguities.length === 0 ? (
-              <div className="bg-emerald-950/20 border border-emerald-500/20 rounded-2xl p-4 text-xs text-emerald-300 flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                <div>
-                  <p className="font-semibold text-emerald-200">All Contract Ambiguities Resolved!</p>
-                  <p className="text-emerald-400/80">Every mathematical ambiguity has been confirmed. The deal is eligible for immutable sign-off.</p>
+          {/* Interactive Ambiguities & Clarification Chips */}
+          {ambiguities.length > 0 && (
+            <div className="bg-white border border-[#DADCE0] rounded-lg shadow-sm overflow-hidden">
+              <div className="px-4 py-3 bg-[#FEF7E0] border-b border-[#FEEFC3] flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-[#B06000]" />
+                  <span className="text-xs font-semibold text-[#B06000] uppercase tracking-wider">
+                    Contract Clarifications Required ({ambiguities.length})
+                  </span>
                 </div>
+                <span className="text-[11px] text-[#B06000] font-medium">Pre-execution alignment</span>
               </div>
-            ) : (
-              ambiguities.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-slate-900 border border-amber-500/30 rounded-2xl p-4.5 space-y-3 shadow-lg"
-                >
-                  <div className="flex items-start gap-2.5">
-                    <span className="p-1 rounded bg-amber-500/10 text-amber-400 shrink-0 mt-0.5">
-                      <AlertTriangle className="w-4 h-4" />
-                    </span>
-                    <div className="space-y-1">
-                      <p className="text-xs font-semibold text-slate-100">{item.question}</p>
-                      <p className="text-[11px] text-slate-400">{item.whyItMatters}</p>
+
+              <div className="p-4 space-y-4">
+                <p className="text-xs text-[#5F6368]">
+                  Tributary identified ambiguous clauses in your agreement. Choose terms to guarantee deterministic payout execution:
+                </p>
+
+                {ambiguities.map((a, idx) => (
+                  <div
+                    key={a.id || idx}
+                    className="p-3.5 rounded-lg border border-[#DADCE0] bg-[#F8F9FA] space-y-2.5"
+                  >
+                    <div className="flex items-start gap-2">
+                      <HelpCircle className="w-4 h-4 text-[#1A73E8] shrink-0 mt-0.5" />
+                      <div>
+                        <div className="text-xs font-semibold text-[#202124]">{a.question}</div>
+                        <div className="text-[11px] text-[#5F6368] mt-0.5">{a.whyItMatters}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 pt-1 pl-6">
+                      {a.options.map((opt: string) => {
+                        const isSelected = (a.selected || a.defaultOption) === opt;
+                        return (
+                          <button
+                            key={opt}
+                            type="button"
+                            onClick={() => handleSelectOption(a.id, opt)}
+                            className={`px-3 py-1.5 rounded-full text-xs font-mono font-medium transition-all border ${
+                              isSelected
+                                ? 'bg-[#E8F0FE] text-[#1967D2] border-[#1A73E8] shadow-sm font-semibold'
+                                : 'bg-white text-[#5F6368] border-[#DADCE0] hover:bg-[#F1F3F4] hover:text-[#202124]'
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
+                ))}
 
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    {item.options.map((opt: string) => {
-                      const isSelected = item.selected === opt || (!item.selected && opt === item.defaultOption);
-                      return (
-                        <button
-                          key={opt}
-                          type="button"
-                          onClick={() => handleSelectOption(item.id, opt)}
-                          className={`px-3 py-2 rounded-xl text-xs font-mono transition text-left border ${
-                            isSelected
-                              ? 'bg-cyan-500/10 border-cyan-500 text-cyan-300 font-semibold shadow-sm'
-                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span>{opt}</span>
-                            {opt === item.defaultOption && (
-                              <span className="text-[9px] uppercase px-1 rounded bg-slate-800 text-slate-400">
-                                Recommended
-                              </span>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                <button
+                  onClick={handleConfirmAllClarifications}
+                  disabled={isLoading}
+                  className="w-full py-2.5 bg-[#137333] text-white hover:bg-[#0D5C26] rounded-md text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-colors disabled:opacity-50"
+                >
+                  <CheckCircle2 className="w-4 h-4 stroke-[2]" />
+                  <span>Confirm All Clarifications & Unlock Agreement</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Right Column: Compiled Deal Spec & Lock Action */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-5 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-cyan-400" />
-                Compiled Waterfall Specification
-              </h2>
-              <span className="text-xs font-mono text-slate-400">
-                {currentDeal?.dealId || 'deal_draft'}
+        {/* Right Column: Executable Deal Spec */}
+        <div className="lg:col-span-6 space-y-5">
+          <div className="bg-white border border-[#DADCE0] rounded-lg shadow-sm overflow-hidden">
+            <div className="px-4 py-3 bg-[#F8F9FA] border-b border-[#DADCE0] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#137333]" />
+                <span className="text-xs font-semibold text-[#202124] uppercase tracking-wider">
+                  Executable Deal Specification
+                </span>
+              </div>
+              <span className="text-[11px] font-mono text-[#5F6368]">
+                ID: {currentDeal?.dealId || 'deal_moonlit_demo'}
               </span>
             </div>
 
-            {/* Spec Attributes */}
-            <div className="space-y-3 text-xs">
-              <div className="bg-slate-950 rounded-xl p-3 border border-slate-800/80 space-y-2">
-                <div className="flex justify-between text-slate-400">
-                  <span>Agreement Title:</span>
-                  <span className="text-white font-medium">{currentDeal?.title || 'Team Moonlit Deal'}</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Upfront Recoup Bucket:</span>
-                  <span className="text-cyan-400 font-mono font-semibold">
-                    ${((currentDeal?.recoupBucket?.totalCents || 40000) / 100).toFixed(2)} to{' '}
-                    {currentDeal?.recoupBucket?.payeeId?.toUpperCase() || 'MAYA'} ({currentDeal?.recoupBucket?.feeBasis || 'NET_OF_FEES'})
+            <div className="p-5 space-y-5">
+              {/* SHA-256 Hash Display */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-[#5F6368]">Cryptographic Deal Hash (SHA-256)</span>
+                  <span className="text-[11px] text-[#137333] font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Immutable
                   </span>
                 </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Refund Reserve:</span>
-                  <span className="text-slate-200 font-mono">
-                    {((currentDeal?.reserveBps || 1000) / 100).toFixed(0)}% (14 Days Holdback)
-                  </span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Revenue Tier Threshold:</span>
-                  <span className="text-slate-200 font-mono">
-                    ${((currentDeal?.tierThresholdNetCents || 200000) / 100).toFixed(2)} Net
-                  </span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Post-Payout Clawback:</span>
-                  <span className="text-slate-200 font-mono">
-                    {currentDeal?.clawbackRule || 'PRO_RATA_SALE_SHARE'}
-                  </span>
+                <div className="p-2.5 bg-[#F8F9FA] rounded border border-[#DADCE0] font-mono text-xs text-[#202124] break-all select-all tabular-nums">
+                  {currentDeal?.sha256Hash || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}
                 </div>
               </div>
 
-              {/* Collaborators Table */}
+              {/* Payees Table */}
               <div className="space-y-2">
-                <div className="text-slate-400 font-medium">Collaborators & Tier Splits:</div>
-                <div className="space-y-1.5">
-                  {(currentDeal?.payees || [
-                    { id: 'maya', name: 'Maya Lin', email: 'maya@example.com', tier1Bps: 4000, tier2Bps: 2500 },
-                    { id: 'arjun', name: 'Arjun Rao', email: 'arjun@example.com', tier1Bps: 3000, tier2Bps: 2500 },
-                    { id: 'lina', name: 'Lina Chen', email: 'lina@example.com', tier1Bps: 2000, tier2Bps: 2500 },
-                    { id: 'dev', name: 'Dev Patel', email: 'dev@example.com', tier1Bps: 1000, tier2Bps: 2500 },
-                  ]).map((p) => (
-                    <div
-                      key={p.id}
-                      className="flex items-center justify-between p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs"
-                    >
-                      <div>
-                        <div className="font-semibold text-slate-200">{p.name}</div>
-                        <div className="text-[10px] text-slate-500 font-mono">{p.email}</div>
-                      </div>
-                      <div className="text-right font-mono">
-                        <div className="text-cyan-400">Tier 1: {(p.tier1Bps / 100).toFixed(0)}%</div>
-                        <div className="text-slate-500 text-[10px]">Tier 2: {(p.tier2Bps / 100).toFixed(0)}%</div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="text-xs font-semibold text-[#202124] uppercase tracking-wider">
+                  Payees & Waterfall Split Tiers
                 </div>
-              </div>
-            </div>
-
-            {/* Hash Pinning & Sign-off Action */}
-            <div className="pt-2 border-t border-slate-800 space-y-3">
-              <div className="bg-slate-950 rounded-xl p-3 border border-slate-800 font-mono text-[11px] space-y-1">
-                <div className="text-slate-400 flex items-center justify-between">
-                  <span>SHA-256 Pinned Hash:</span>
-                  <span className="text-emerald-400 text-[10px]">VERIFIED</span>
-                </div>
-                <div className="text-slate-300 break-all leading-tight">
-                  {currentDeal?.sha256Hash || 'c85cbc0ffadbeb71e5ac5d34c769153c84cb6d432219cae5dded7ee584597dc6'}
+                <div className="border border-[#DADCE0] rounded-lg overflow-hidden">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-[#F8F9FA] text-[#5F6368] font-medium border-b border-[#DADCE0]">
+                      <tr>
+                        <th className="py-2.5 px-3">Payee</th>
+                        <th className="py-2.5 px-3">PayPal Email</th>
+                        <th className="py-2.5 px-3 text-right">Tier 1 (&lt;$2k)</th>
+                        <th className="py-2.5 px-3 text-right">Tier 2 (&ge;$2k)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#DADCE0] text-[#202124]">
+                      {(currentDeal?.payees || [
+                        { id: 'maya', name: 'Maya Lin', email: 'maya@example.com', tier1Bps: 4000, tier2Bps: 2500 },
+                        { id: 'arjun', name: 'Arjun Rao', email: 'arjun@example.com', tier1Bps: 3000, tier2Bps: 2500 },
+                        { id: 'lina', name: 'Lina Chen', email: 'lina@example.com', tier1Bps: 2000, tier2Bps: 2500 },
+                        { id: 'dev', name: 'Dev Patel', email: 'dev@example.com', tier1Bps: 1000, tier2Bps: 2500 },
+                      ]).map((p) => (
+                        <tr key={p.id} className="hover:bg-[#F8F9FA] transition-colors">
+                          <td className="py-2.5 px-3 font-medium text-[#202124]">{p.name}</td>
+                          <td className="py-2.5 px-3 font-mono text-[11px] text-[#5F6368]">{p.email}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-medium text-[#202124] tabular-nums">
+                            {(p.tier1Bps / 100).toFixed(0)}% <span className="text-[#80868B] text-[10px]">({p.tier1Bps} bps)</span>
+                          </td>
+                          <td className="py-2.5 px-3 text-right font-mono font-medium text-[#202124] tabular-nums">
+                            {(p.tier2Bps / 100).toFixed(0)}% <span className="text-[#80868B] text-[10px]">({p.tier2Bps} bps)</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => onLock(currentDeal?.dealId || 'deal_moonlit_v1')}
-                disabled={isLoading || (!canActivate && ambiguities.length > 0)}
-                className={`w-full py-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition ${
-                  dealStatus === 'LOCKED'
-                    ? 'bg-emerald-600 text-white'
-                    : canActivate || ambiguities.length === 0
-                    ? 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/20'
-                    : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                }`}
-              >
-                {dealStatus === 'LOCKED' ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-white" />
-                    Deal Immutable & Signed (Active on PayPal)
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-4 h-4" />
-                    Sign & Lock Immutable Deal Version (SHA-256)
-                  </>
-                )}
-              </button>
+              {/* Financial Invariants & Parameters Cards */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="p-3 rounded-lg border border-[#DADCE0] bg-[#F8F9FA] space-y-1">
+                  <div className="text-[11px] text-[#5F6368] font-medium">Recoup Priority</div>
+                  <div className="text-sm font-bold text-[#202124] font-mono tabular-nums">
+                    ${((currentDeal?.recoupBucket?.totalCents ?? 40000) / 100).toFixed(2)}
+                  </div>
+                  <div className="text-[10px] text-[#137333] font-medium">
+                    {currentDeal?.recoupBucket?.payeeId || 'Maya'} ({currentDeal?.recoupBucket?.feeBasis || 'NET_OF_FEES'})
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg border border-[#DADCE0] bg-[#F8F9FA] space-y-1">
+                  <div className="text-[11px] text-[#5F6368] font-medium">Tier Boundary</div>
+                  <div className="text-sm font-bold text-[#202124] font-mono tabular-nums">
+                    ${((currentDeal?.tierThresholdNetCents ?? 200000) / 100).toFixed(2)}
+                  </div>
+                  <div className="text-[10px] text-[#5F6368]">
+                    Cumulative Net Revenue
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg border border-[#DADCE0] bg-[#F8F9FA] space-y-1">
+                  <div className="text-[11px] text-[#5F6368] font-medium">Refund Holdback</div>
+                  <div className="text-sm font-bold text-[#202124] font-mono tabular-nums">
+                    {((currentDeal?.reserveBps ?? 1000) / 100).toFixed(1)}%
+                  </div>
+                  <div className="text-[10px] text-[#5F6368]">
+                    {currentDeal?.holdbackDays ?? 14} days rolling reserve
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg border border-[#DADCE0] bg-[#F8F9FA] space-y-1">
+                  <div className="text-[11px] text-[#5F6368] font-medium">Min Payout Threshold</div>
+                  <div className="text-sm font-bold text-[#202124] font-mono tabular-nums">
+                    ${((currentDeal?.minPayoutCents ?? 2500) / 100).toFixed(2)}
+                  </div>
+                  <div className="text-[10px] text-[#5F6368]">
+                    Carried forward until reached
+                  </div>
+                </div>
+              </div>
+
+              {/* Lock Button */}
+              {dealStatus !== 'LOCKED' ? (
+                <button
+                  onClick={() => onLock(currentDeal?.dealId || 'deal_moonlit_demo')}
+                  disabled={isLoading}
+                  className="w-full py-2.5 bg-[#137333] text-white hover:bg-[#0D5C26] active:bg-[#0A471D] rounded-md text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-colors disabled:opacity-50"
+                >
+                  <Lock className="w-4 h-4 stroke-[2]" />
+                  <span>Lock & Cryptographically Pin Agreement</span>
+                </button>
+              ) : (
+                <div className="w-full py-2.5 rounded-md text-xs font-semibold bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6] flex items-center justify-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 stroke-[2]" />
+                  <span>Agreement Signed & Pinned (Active for Settlement)</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

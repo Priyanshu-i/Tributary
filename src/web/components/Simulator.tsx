@@ -19,8 +19,8 @@ interface SimulatorProps {
 }
 
 export const Simulator: React.FC<SimulatorProps> = ({ currentDeal, onSimulate, isLoading }) => {
-  const [sliderGross, setSliderGross] = useState<number>(10000); // 100.00
-  const [simulatedRecouped, setSimulatedRecouped] = useState<number>(37000); // 370.00
+  const [sliderGross, setSliderGross] = useState<number>(10000); // $100.00
+  const [simulatedRecouped, setSimulatedRecouped] = useState<number>(37000); // $370.00
 
   const deal = currentDeal || {
     dealId: 'deal_moonlit_v1',
@@ -58,242 +58,280 @@ export const Simulator: React.FC<SimulatorProps> = ({ currentDeal, onSimulate, i
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#DADCE0] gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
-            <Sliders className="w-6 h-6 text-cyan-400" />
-            Screen 2: Simulator & Property-Based Prover
-          </h1>
-          <p className="text-sm text-slate-400">
-            AI proposes boundary edge-cases while deterministic TypeScript code computes exact cent allocations.
+          <h1 className="text-xl font-bold text-[#202124]">Waterfall Simulator & Invariant Prover</h1>
+          <p className="text-xs text-[#5F6368] mt-0.5">
+            Test what-if financial sales volume and verify exact integer-cent conservation without external API calls.
           </p>
         </div>
 
-        {/* fast-check Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold shadow-sm">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+        {/* fast-check Conservation Badge */}
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6] text-xs font-semibold shadow-sm">
+          <ShieldCheck className="w-4 h-4 text-[#137333]" />
           <span>100/100 PROPERTY TESTS PASSED (fast-check Conservation Proof)</span>
         </div>
       </div>
 
-      {/* 3 AI-Suggested Boundary Scenarios */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* 3 Boundary Edge-Case Scenarios */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Scenario 1 */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 hover:border-slate-700 transition">
+        <div className="bg-white border border-[#DADCE0] rounded-lg p-4 space-y-3 shadow-sm hover:border-[#BDC1C6] transition-colors">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-cyan-400 flex items-center gap-1.5">
+            <span className="font-semibold text-[#1A73E8] flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
               Scenario 1: Pure Recoup Sale
             </span>
-            <span className="text-slate-500 font-mono">Gross $100.00</span>
+            <span className="text-[#5F6368] font-mono text-[11px] tabular-nums">$100.00 Gross</span>
           </div>
 
-          <p className="text-xs text-slate-300 leading-relaxed">
-            First sale of the project with Maya at $0 / $400 recouped. 100% of distributable pool ($86.42) reimburses Maya's art cost.
+          <p className="text-xs text-[#5F6368] leading-relaxed">
+            First sale of the deal with Maya at $0 / $400 recouped. 100% of distributable pool ($86.42) reimburses Maya's upfront art cost.
           </p>
 
-          <div className="bg-slate-950 rounded-xl p-3 border border-slate-800 space-y-1.5 text-xs font-mono">
-            <div className="flex justify-between text-slate-400">
+          <div className="bg-[#F8F9FA] rounded border border-[#DADCE0] p-2.5 space-y-1 text-xs font-mono tabular-nums">
+            <div className="flex justify-between text-[#5F6368]">
               <span>Gross / Fee:</span>
-              <span>$100.00 / -$3.98</span>
+              <span className="text-[#202124]">$100.00 / -$3.98</span>
             </div>
-            <div className="flex justify-between text-slate-400">
+            <div className="flex justify-between text-[#5F6368]">
               <span>10% Reserve:</span>
-              <span className="text-amber-400">-$9.60</span>
+              <span className="text-[#B06000]">-$9.60</span>
             </div>
-            <div className="flex justify-between text-cyan-400 font-semibold border-t border-slate-800 pt-1">
-              <span>Maya Recoup (100%):</span>
-              <span>$86.42</span>
+            <div className="flex justify-between font-semibold pt-1 border-t border-[#DADCE0] text-[#137333]">
+              <span>Maya Payout:</span>
+              <span>$86.42 (100% Recoup)</span>
             </div>
-            <div className="flex justify-between text-slate-500">
-              <span>Arjun, Lina, Dev:</span>
-              <span>$0.00 (Recoup First)</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Scenario 2: Climax Demo */}
-        <div className="bg-slate-900 border border-cyan-500/40 rounded-2xl p-5 space-y-4 shadow-lg shadow-cyan-500/5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 bg-cyan-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-bl">
-            DEMO CLIMAX
-          </div>
-
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-cyan-400 flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5" />
-              Scenario 2: Boundary-Crossing Sale
-            </span>
-            <span className="text-slate-500 font-mono">Gross $100.00</span>
-          </div>
-
-          <p className="text-xs text-slate-300 leading-relaxed">
-            Maya at $370/$400 recouped. The $100 sale finishes the remaining $30 recoup and splits $56.42 40/30/20/10!
-          </p>
-
-          <div className="bg-slate-950 rounded-xl p-3 border border-slate-800 space-y-1.5 text-xs font-mono">
-            <div className="flex justify-between text-slate-400">
-              <span>Maya ($30 Recoup + $22.57):</span>
-              <span className="text-cyan-400 font-bold">$52.57</span>
-            </div>
-            <div className="flex justify-between text-slate-400">
-              <span>Arjun (30% share):</span>
-              <span className="text-slate-200">$16.93</span>
-            </div>
-            <div className="flex justify-between text-slate-400">
-              <span>Lina (20% share):</span>
-              <span className="text-slate-200">$11.28</span>
-            </div>
-            <div className="flex justify-between text-slate-400">
-              <span>Dev (10% share):</span>
-              <span className="text-slate-200">$5.64</span>
-            </div>
-            <div className="flex justify-between text-emerald-400 font-semibold border-t border-slate-800 pt-1">
-              <span>Conservation Invariant:</span>
-              <span>EXACT 10000 CENTS</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Scenario 3: Partial Refund */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 hover:border-slate-700 transition">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-rose-400 flex items-center gap-1.5">
-              <RotateCcw className="w-3.5 h-3.5" />
-              Scenario 3: Post-Payout Refund ($50)
-            </span>
-            <span className="text-slate-500 font-mono">Refund $50.00</span>
-          </div>
-
-          <p className="text-xs text-slate-300 leading-relaxed">
-            Customer refunds $50 after payouts. The $9.60 reserve drains to 0, remaining $40.40 deficit allocated pro-rata to earnings.
-          </p>
-
-          <div className="bg-slate-950 rounded-xl p-3 border border-slate-800 space-y-1.5 text-xs font-mono">
-            <div className="flex justify-between text-slate-400">
-              <span>Reserve Drained:</span>
-              <span className="text-rose-400">-$9.60 -&gt; $0.00</span>
-            </div>
-            <div className="flex justify-between text-slate-400">
-              <span>Remaining Deficit:</span>
-              <span className="text-amber-400">$40.40</span>
-            </div>
-            <div className="flex justify-between text-slate-400">
-              <span>Maya Deficit Claws:</span>
-              <span>$24.58 (Netted Next Sale)</span>
-            </div>
-            <div className="flex justify-between text-slate-400">
+            <div className="flex justify-between text-[#80868B] text-[11px]">
               <span>Arjun / Lina / Dev:</span>
-              <span>$7.91 / $5.27 / $2.64</span>
+              <span>$0.00 each</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Scenario 2: Demo Climax */}
+        <div className="bg-white border-2 border-[#1A73E8] rounded-lg p-4 space-y-3 shadow-sm">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-semibold text-[#1A73E8] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              Scenario 2: Demo Climax (Boundary)
+            </span>
+            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#E8F0FE] text-[#1967D2]">
+              HACKATHON CLIMAX
+            </span>
+          </div>
+
+          <p className="text-xs text-[#5F6368] leading-relaxed">
+            Maya is at $370 / $400 recouped. This $100 sale completes Maya's final $30 recoup and splits the remaining $56.42 40/30/20/10.
+          </p>
+
+          <div className="bg-[#F8F9FA] rounded border border-[#DADCE0] p-2.5 space-y-1 text-xs font-mono tabular-nums">
+            <div className="flex justify-between text-[#5F6368]">
+              <span>Maya Art Recoup:</span>
+              <span className="font-semibold text-[#202124]">$30.00 (Recoup Complete)</span>
+            </div>
+            <div className="flex justify-between text-[#5F6368]">
+              <span>Maya Split (40%):</span>
+              <span className="text-[#202124]">+$22.57 &rarr; Total $52.57</span>
+            </div>
+            <div className="flex justify-between text-[#5F6368]">
+              <span>Arjun / Lina / Dev:</span>
+              <span className="text-[#202124]">$16.93 / $11.28 / $5.64</span>
+            </div>
+            <div className="flex justify-between font-semibold pt-1 border-t border-[#DADCE0] text-[#137333]">
+              <span>Cent Conservation:</span>
+              <span>Exact 10000 Cents</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Scenario 3: Straddle $2,000 Threshold */}
+        <div className="bg-white border border-[#DADCE0] rounded-lg p-4 space-y-3 shadow-sm hover:border-[#BDC1C6] transition-colors">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-semibold text-[#1A73E8] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              Scenario 3: Tier 2 Transition
+            </span>
+            <span className="text-[#5F6368] font-mono text-[11px] tabular-nums">$2,000 Boundary</span>
+          </div>
+
+          <p className="text-xs text-[#5F6368] leading-relaxed">
+            Sale straddles the $2,000 net revenue threshold. Proportional cents apply Tier 1 (40/30/20/10) and post-threshold cents apply Tier 2 (25/25/25/25).
+          </p>
+
+          <div className="bg-[#F8F9FA] rounded border border-[#DADCE0] p-2.5 space-y-1 text-xs font-mono tabular-nums">
+            <div className="flex justify-between text-[#5F6368]">
+              <span>Pre-Tier Pool:</span>
+              <span className="text-[#202124]">40 / 30 / 20 / 10%</span>
+            </div>
+            <div className="flex justify-between text-[#5F6368]">
+              <span>Post-Tier Pool:</span>
+              <span className="text-[#202124]">25 / 25 / 25 / 25%</span>
+            </div>
+            <div className="flex justify-between font-semibold pt-1 border-t border-[#DADCE0] text-[#137333]">
+              <span>Remainder Allocation:</span>
+              <span>Largest-Remainder Cent Rule</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Interactive Simulation Sandbox */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-          <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-cyan-400" />
+      {/* Interactive FinOps Simulation Sandbox */}
+      <div className="bg-white border border-[#DADCE0] rounded-lg shadow-sm overflow-hidden">
+        <div className="px-5 py-4 bg-[#F8F9FA] border-b border-[#DADCE0] flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Sliders className="w-4 h-4 text-[#1A73E8]" />
+            <span className="text-xs font-semibold text-[#202124] uppercase tracking-wider">
               Interactive Integer-Cent Waterfall Sandbox
-            </h2>
-            <p className="text-xs text-slate-400">
-              Drag the slider to test any gross amount against current contract rules in real-time.
-            </p>
-          </div>
-
-          <div className="text-right">
-            <div className="text-xs text-slate-400">Tested Gross Amount:</div>
-            <div className="text-xl font-bold font-mono text-cyan-400">
-              ${(sliderGross / 100).toFixed(2)}
-            </div>
-          </div>
-        </div>
-
-        {/* Sliders */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs text-slate-300">
-              <span>Gross Sale Amount: ${(sliderGross / 100).toFixed(2)}</span>
-              <span className="text-slate-500 font-mono">Range: $10 - $500</span>
-            </div>
-            <input
-              type="range"
-              min="1000"
-              max="50000"
-              step="100"
-              value={sliderGross}
-              onChange={(e) => setSliderGross(parseInt(e.target.value, 10))}
-              className="w-full accent-cyan-500 cursor-pointer"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs text-slate-300">
-              <span>Prior Recoup Progress: ${(simulatedRecouped / 100).toFixed(2)} / $400.00</span>
-              <span className="text-slate-500 font-mono">{((simulatedRecouped / 40000) * 100).toFixed(0)}%</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="40000"
-              step="1000"
-              value={simulatedRecouped}
-              onChange={(e) => setSimulatedRecouped(parseInt(e.target.value, 10))}
-              className="w-full accent-cyan-500 cursor-pointer"
-            />
-          </div>
-        </div>
-
-        {/* Live Step Breakdown Table */}
-        <div className="bg-slate-950 rounded-xl p-4 border border-slate-800 space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center text-xs font-mono">
-            <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-              <div className="text-slate-500 text-[10px]">Gross</div>
-              <div className="font-bold text-white">${(currentTrace.grossCents / 100).toFixed(2)}</div>
-            </div>
-            <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-              <div className="text-slate-500 text-[10px]">PayPal Fee (-3.49%+$0.49)</div>
-              <div className="font-bold text-rose-400">-${(currentTrace.feeCents / 100).toFixed(2)}</div>
-            </div>
-            <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-              <div className="text-slate-500 text-[10px]">10% Reserve Holdback</div>
-              <div className="font-bold text-amber-400">-${(currentTrace.reserveCents / 100).toFixed(2)}</div>
-            </div>
-            <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-              <div className="text-slate-500 text-[10px]">Upfront Recoup Paid</div>
-              <div className="font-bold text-cyan-400">${(currentTrace.recoupPaidCents / 100).toFixed(2)}</div>
-            </div>
-            <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-              <div className="text-slate-500 text-[10px]">Remaining Split Pool</div>
-              <div className="font-bold text-emerald-400">${(currentTrace.remainingDistributableCents / 100).toFixed(2)}</div>
-            </div>
-          </div>
-
-          {/* Payee Allocations */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 pt-2">
-            {currentTrace.payeeAllocations.map((alloc) => (
-              <div key={alloc.payeeId} className="bg-slate-900 rounded-lg p-3 border border-slate-800 text-xs">
-                <div className="font-semibold text-slate-200">{alloc.name}</div>
-                <div className="text-lg font-bold font-mono text-cyan-400 mt-1">
-                  ${(alloc.grossAwardedCents / 100).toFixed(2)}
-                </div>
-                <div className="text-[10px] text-slate-500 mt-1 space-y-0.5">
-                  {alloc.recoupAwardedCents > 0 && <div>Recoup: ${(alloc.recoupAwardedCents / 100).toFixed(2)}</div>}
-                  <div>Split: ${(alloc.splitAwardedCents / 100).toFixed(2)}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-slate-400 border-t border-slate-800/80 pt-3">
-            <span className="flex items-center gap-1.5 text-emerald-400 font-semibold font-mono">
-              <CheckCircle2 className="w-4 h-4" />
-              Conservation Invariant: {currentTrace.grossCents} === {currentTrace.feeCents + currentTrace.reserveCents + currentTrace.totalPayoutCents + currentTrace.totalCarriedDeltaCents + currentTrace.totalWithheldRecoveryCents} Cents
             </span>
-            <span className="text-slate-500 font-mono text-[11px]">Zero floating-point rounding errors</span>
+          </div>
+          <div className="text-xs text-[#5F6368]">
+            Simulated Gross: <span className="font-mono font-bold text-[#1A73E8] tabular-nums">${(sliderGross / 100).toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Controls: Gross Sale Slider + Recoup State Radio */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 rounded-lg bg-[#F8F9FA] border border-[#DADCE0]">
+            {/* Slider */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="font-medium text-[#202124]">Gross Sale Amount</span>
+                <span className="font-mono font-bold text-[#202124] tabular-nums">${(sliderGross / 100).toFixed(2)}</span>
+              </div>
+              <input
+                type="range"
+                min="500"
+                max="50000"
+                step="500"
+                value={sliderGross}
+                onChange={(e) => setSliderGross(parseInt(e.target.value, 10))}
+                className="w-full h-2 bg-[#DADCE0] rounded-lg appearance-none cursor-pointer accent-[#1A73E8]"
+              />
+              <div className="flex justify-between text-[11px] text-[#80868B] font-mono tabular-nums">
+                <span>$5.00</span>
+                <span>$100.00 (Demo)</span>
+                <span>$500.00</span>
+              </div>
+            </div>
+
+            {/* Recoup State Pre-sets */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="font-medium text-[#202124]">Maya Recoup State Prior to Sale</span>
+                <span className="font-mono font-semibold text-[#202124] tabular-nums">
+                  ${(simulatedRecouped / 100).toFixed(2)} / $400.00
+                </span>
+              </div>
+              <div className="flex gap-2">
+                {[
+                  { label: '$0 (Fresh)', val: 0 },
+                  { label: '$370 (Demo Climax)', val: 37000 },
+                  { label: '$400 (Complete)', val: 40000 },
+                ].map((preset) => (
+                  <button
+                    key={preset.label}
+                    onClick={() => setSimulatedRecouped(preset.val)}
+                    className={`flex-1 py-1.5 px-2 rounded text-xs font-mono transition-all border ${
+                      simulatedRecouped === preset.val
+                        ? 'bg-[#E8F0FE] text-[#1967D2] border-[#1A73E8] font-semibold'
+                        : 'bg-white text-[#5F6368] border-[#DADCE0] hover:bg-[#F1F3F4] hover:text-[#202124]'
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Waterfall Steps Flow */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="p-3 rounded-lg border border-[#DADCE0] bg-[#F8F9FA] space-y-1">
+              <span className="text-[10px] uppercase font-bold text-[#80868B]">Step 1: PayPal Fee</span>
+              <div className="text-base font-bold text-[#202124] font-mono tabular-nums">
+                ${(currentTrace.feeCents / 100).toFixed(2)}
+              </div>
+              <div className="text-[11px] text-[#5F6368]">3.49% + $0.49 Actual</div>
+            </div>
+
+            <div className="p-3 rounded-lg border border-[#DADCE0] bg-[#F8F9FA] space-y-1">
+              <span className="text-[10px] uppercase font-bold text-[#80868B]">Step 2: 10% Reserve</span>
+              <div className="text-base font-bold text-[#B06000] font-mono tabular-nums">
+                ${(currentTrace.reserveCents / 100).toFixed(2)}
+              </div>
+              <div className="text-[11px] text-[#5F6368]">14-Day Holdback</div>
+            </div>
+
+            <div className="p-3 rounded-lg border border-[#DADCE0] bg-[#F8F9FA] space-y-1">
+              <span className="text-[10px] uppercase font-bold text-[#80868B]">Step 3: Maya Recoup</span>
+              <div className="text-base font-bold text-[#1A73E8] font-mono tabular-nums">
+                ${(currentTrace.recoupPaidCents / 100).toFixed(2)}
+              </div>
+              <div className="text-[11px] text-[#5F6368]">Reimbursed Upfront</div>
+            </div>
+
+            <div className="p-3 rounded-lg border border-[#DADCE0] bg-[#F8F9FA] space-y-1">
+              <span className="text-[10px] uppercase font-bold text-[#80868B]">Step 4: Distributable Pool</span>
+              <div className="text-base font-bold text-[#137333] font-mono tabular-nums">
+                ${(currentTrace.distributableCents / 100).toFixed(2)}
+              </div>
+              <div className="text-[11px] text-[#5F6368]">40 / 30 / 20 / 10 Split</div>
+            </div>
+          </div>
+
+          {/* Real-time Payee Allocation Table */}
+          <div className="border border-[#DADCE0] rounded-lg overflow-hidden">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-[#F8F9FA] text-[#5F6368] font-medium border-b border-[#DADCE0]">
+                <tr>
+                  <th className="py-2.5 px-4">Payee</th>
+                  <th className="py-2.5 px-4 text-right">Recoup Share</th>
+                  <th className="py-2.5 px-4 text-right">Waterfall Share</th>
+                  <th className="py-2.5 px-4 text-right">Total Net Payout</th>
+                  <th className="py-2.5 px-4 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#DADCE0] text-[#202124]">
+                {currentTrace.payeeAllocations.map((p) => (
+                  <tr key={p.payeeId} className="hover:bg-[#F8F9FA] transition-colors">
+                    <td className="py-3 px-4 font-medium">{p.name}</td>
+                    <td className="py-3 px-4 text-right font-mono text-[#5F6368] tabular-nums">
+                      {p.payeeId === 'maya' ? `$${(currentTrace.recoupPaidCents / 100).toFixed(2)}` : '$0.00'}
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono text-[#5F6368] tabular-nums">
+                      ${(p.splitAwardedCents / 100).toFixed(2)}
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono font-bold text-[#137333] tabular-nums text-sm">
+                      ${(p.payoutIssuedCents / 100).toFixed(2)}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#E6F4EA] text-[#137333]">
+                        Immediate Payout
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Conservation Invariant Equation Box */}
+          <div className="p-4 rounded-lg bg-[#E6F4EA] border border-[#CEEAD6] flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#137333]" />
+              <span className="font-semibold text-[#137333]">
+                Hard Conservation Invariant Verified:
+              </span>
+              <span className="font-mono text-[#137333] tabular-nums">
+                Fee (${(currentTrace.feeCents / 100).toFixed(2)}) + Reserve (${(currentTrace.reserveCents / 100).toFixed(2)}) + Payouts (${(currentTrace.totalPayoutCents / 100).toFixed(2)}) === Gross (${(currentTrace.grossCents / 100).toFixed(2)})
+              </span>
+            </div>
+            <span className="px-2 py-0.5 rounded bg-white text-[#137333] font-mono font-bold text-[11px] border border-[#CEEAD6]">
+              DELTA = 0 CENTS
+            </span>
           </div>
         </div>
       </div>

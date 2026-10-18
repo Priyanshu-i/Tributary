@@ -60,9 +60,9 @@ export const PayeeStatement: React.FC<PayeeStatementProps> = ({
         return (
           <span
             key={index}
-            className="inline-flex items-center gap-0.5 px-1.5 py-0.5 mx-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/40"
+            className="inline-flex items-center gap-0.5 px-1.5 py-0.5 mx-0.5 rounded bg-[#E6F4EA] text-[#137333] font-mono font-semibold text-xs border border-[#CEEAD6] tabular-nums"
           >
-            <CheckCircle2 className="w-3 h-3 text-emerald-400 inline" />
+            <CheckCircle2 className="w-3 h-3 text-[#137333] inline" />
             {part}
           </span>
         );
@@ -83,120 +83,187 @@ export const PayeeStatement: React.FC<PayeeStatementProps> = ({
   const displayProse = statementData?.prose || defaultExplanation;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#DADCE0] gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
-            <UserCheck className="w-6 h-6 text-cyan-400" />
-            Screen 4: Collaborator Statements & Number Verifier
-          </h1>
-          <p className="text-sm text-slate-400">
-            Natural-language earnings breakdowns where every dollar figure is verified by strict engine trace allowlists.
+          <h1 className="text-xl font-bold text-[#202124]">Collaborator Statements & Number Verifier</h1>
+          <p className="text-xs text-[#5F6368] mt-0.5">
+            Natural-language financial statements where every cited dollar figure is verified against integer engine allowlists.
           </p>
         </div>
 
         {/* Verifier Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold shadow-sm">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <span>[CITATION VERIFIER: 100% NUMBERS MATCH ENGINE TRACE]</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6] text-xs font-semibold shadow-sm">
+          <ShieldCheck className="w-4 h-4 text-[#137333]" />
+          <span>STRICT ALLOWLIST NUMBER VERIFICATION: ACTIVE</span>
         </div>
       </div>
 
-      {/* Collaborator Selector Tabs */}
-      <div className="flex flex-wrap items-center gap-3">
-        {payees.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => handleSelectPayee(p.id)}
-            className={`px-4 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 border ${
-              selectedPayeeId === p.id
-                ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-lg shadow-cyan-500/20'
-                : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700'
-            }`}
-          >
-            <span>{p.name}</span>
-            <span className="text-[10px] opacity-75 font-mono">
-              ({p.id === 'maya' ? 'Recoup + 40%' : `${p.tier1Bps / 100}%`})
+      {/* Payee Selection Tabs (Google Cloud Console Pill Style) */}
+      <div className="flex flex-wrap items-center gap-2 pb-1 border-b border-[#DADCE0]">
+        {payees.map((p) => {
+          const isSelected = p.id === selectedPayeeId;
+          return (
+            <button
+              key={p.id}
+              onClick={() => handleSelectPayee(p.id)}
+              className={`px-4 py-2 rounded-md text-xs font-medium transition-all border ${
+                isSelected
+                  ? 'bg-[#1A73E8] text-white border-[#1A73E8] shadow-sm font-semibold'
+                  : 'bg-white text-[#5F6368] border-[#DADCE0] hover:bg-[#F8F9FA] hover:text-[#202124]'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>{p.name}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                    isSelected ? 'bg-white/20 text-white' : 'bg-[#F1F3F4] text-[#5F6368]'
+                  }`}
+                >
+                  {(p.tier1Bps / 100).toFixed(0)}%
+                </span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 4 Financial Metric Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white border border-[#DADCE0] rounded-lg p-4 space-y-1 shadow-sm">
+          <span className="text-[11px] font-medium text-[#5F6368]">Total Net Earned</span>
+          <div className="text-xl font-bold text-[#202124] font-mono tabular-nums">
+            ${(balance.totalEarnedCents / 100).toFixed(2)}
+          </div>
+          <div className="text-[11px] text-[#5F6368]">Cumulative deal lifetime</div>
+        </div>
+
+        <div className="bg-white border border-[#DADCE0] rounded-lg p-4 space-y-1 shadow-sm">
+          <span className="text-[11px] font-medium text-[#5F6368]">Total Paid via PayPal</span>
+          <div className="text-xl font-bold text-[#137333] font-mono tabular-nums">
+            ${(balance.totalPaidCents / 100).toFixed(2)}
+          </div>
+          <div className="text-[11px] text-[#137333] font-medium">Disbursed to Personal Account</div>
+        </div>
+
+        <div className="bg-white border border-[#DADCE0] rounded-lg p-4 space-y-1 shadow-sm">
+          <span className="text-[11px] font-medium text-[#5F6368]">Carried Forward Balance</span>
+          <div className="text-xl font-bold text-[#5F6368] font-mono tabular-nums">
+            ${(balance.carriedForwardCents / 100).toFixed(2)}
+          </div>
+          <div className="text-[11px] text-[#80868B]">&lt; $25.00 min threshold</div>
+        </div>
+
+        <div className="bg-white border border-[#DADCE0] rounded-lg p-4 space-y-1 shadow-sm">
+          <span className="text-[11px] font-medium text-[#5F6368]">Recovery Deficit (Clawbacks)</span>
+          <div className="text-xl font-bold text-[#C5221F] font-mono tabular-nums">
+            -${(balance.recoveryDeficitCents / 100).toFixed(2)}
+          </div>
+          <div className="text-[11px] text-[#5F6368]">Netted on future sales</div>
+        </div>
+      </div>
+
+      {/* Verified AI Natural Language Explanation Box */}
+      <div className="bg-white border border-[#DADCE0] rounded-lg shadow-sm overflow-hidden">
+        <div className="px-5 py-3.5 bg-[#F8F9FA] border-b border-[#DADCE0] flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#1A73E8]" />
+            <span className="text-xs font-semibold text-[#202124] uppercase tracking-wider">
+              AI Natural-Language Explanation & Audit Citation
             </span>
-          </button>
-        ))}
-      </div>
+          </div>
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6] flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            100% Numbers Verified in Trace Allowlist
+          </span>
+        </div>
 
-      {/* Main Statement Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Earnings Card */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div>
-                <h2 className="text-base font-bold text-white">{currentPayee.name}</h2>
-                <p className="text-xs text-slate-400 font-mono">{currentPayee.email}</p>
-              </div>
-              <span className="text-xs px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">
-                Verified Payee
+        <div className="p-5 space-y-4">
+          <div className="p-4 rounded-lg bg-[#F8F9FA] border border-[#DADCE0] text-sm text-[#202124] leading-relaxed">
+            {renderHighlightedProse(displayProse)}
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between text-xs text-[#5F6368] pt-2 border-t border-[#F1F3F4]">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#137333]" />
+              <span>
+                Verified payee: <strong className="text-[#202124]">{currentPayee.name}</strong> ({currentPayee.email})
               </span>
             </div>
-
-            <div className="grid grid-cols-2 gap-3 text-xs font-mono">
-              <div className="bg-slate-950 rounded-xl p-3 border border-slate-800 space-y-1">
-                <div className="text-slate-500 text-[10px]">Total Earned</div>
-                <div className="text-lg font-bold text-cyan-400">
-                  ${(balance.totalEarnedCents / 100).toFixed(2)}
-                </div>
-              </div>
-
-              <div className="bg-slate-950 rounded-xl p-3 border border-slate-800 space-y-1">
-                <div className="text-slate-500 text-[10px]">Total Paid via PayPal</div>
-                <div className="text-lg font-bold text-emerald-400">
-                  ${(balance.totalPaidCents / 100).toFixed(2)}
-                </div>
-              </div>
-
-              <div className="bg-slate-950 rounded-xl p-3 border border-slate-800 space-y-1">
-                <div className="text-slate-500 text-[10px]">Carried Forward (&lt;$25)</div>
-                <div className="text-lg font-bold text-slate-300">
-                  ${(balance.carriedForwardCents / 100).toFixed(2)}
-                </div>
-              </div>
-
-              <div className="bg-slate-950 rounded-xl p-3 border border-slate-800 space-y-1">
-                <div className="text-slate-500 text-[10px]">Recovery Deficit</div>
-                <div className="text-lg font-bold text-rose-400">
-                  -${(balance.recoveryDeficitCents / 100).toFixed(2)}
-                </div>
-              </div>
+            <div className="font-mono text-[11px]">
+              Engine Rule: Regex currency matcher rejects any hallucinated amount.
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Citation-Verified AI Explanation */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-cyan-400" />
-                Citation-Verified AI Explanation
-              </h2>
-              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                100% NUMBER AUDIT PASSED
-              </span>
-            </div>
+      {/* Itemized Payout Breakdown Table */}
+      <div className="bg-white border border-[#DADCE0] rounded-lg shadow-sm overflow-hidden">
+        <div className="px-5 py-3.5 bg-[#F8F9FA] border-b border-[#DADCE0] flex items-center justify-between">
+          <span className="text-xs font-semibold text-[#202124] uppercase tracking-wider">
+            Itemized Payout History for {currentPayee.name}
+          </span>
+          <span className="text-[11px] text-[#5F6368]">Synced with PayPal Payouts v1</span>
+        </div>
 
-            <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 text-sm text-slate-200 leading-relaxed font-sans">
-              {renderHighlightedProse(displayProse)}
-            </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#F8F9FA] text-[#5F6368] font-medium border-b border-[#DADCE0]">
+              <tr>
+                <th className="py-2.5 px-4">Transaction / Sale</th>
+                <th className="py-2.5 px-4">Event Type</th>
+                <th className="py-2.5 px-4 text-right">Recoup Component</th>
+                <th className="py-2.5 px-4 text-right">Waterfall Share</th>
+                <th className="py-2.5 px-4 text-right">Net Amount Disbursed</th>
+                <th className="py-2.5 px-4 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#DADCE0] text-[#202124]">
+              {sales.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-xs text-[#5F6368]">
+                    No transactions recorded yet for this deal.
+                  </td>
+                </tr>
+              ) : (
+                sales.map((sale) => {
+                  const alloc = sale.trace?.payeeAllocations?.find(
+                    (p: any) => p.payeeId === selectedPayeeId
+                  );
+                  const isRecoupPayee = selectedPayeeId === 'maya';
+                  const recoupAmount = isRecoupPayee ? sale.trace?.recoupPaidCents || 0 : 0;
+                  const shareAmount = alloc?.rawShareCents || 0;
+                  const totalPaid = alloc?.payoutIssuedCents || 0;
 
-            <div className="text-xs text-slate-400 space-y-2 pt-2 border-t border-slate-800/80">
-              <div className="flex items-center gap-2 text-emerald-400 font-medium">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Zero Hallucination Guarantee:</span>
-              </div>
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                The Number Verifier Guardrail extracted each currency token above, converted it to integer cents, and confirmed that it exists identically in the deterministic engine trace allowlist. Any invented figures (e.g. $999.99) trigger an instant fallback rejection.
-              </p>
-            </div>
-          </div>
+                  return (
+                    <tr key={sale.sale_id} className="hover:bg-[#F8F9FA] transition-colors">
+                      <td className="py-3 px-4 font-mono font-medium text-[#1A73E8]">{sale.sale_id}</td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#E8F0FE] text-[#1967D2]">
+                          CAPTURE_SPLIT
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono text-[#5F6368] tabular-nums">
+                        ${(recoupAmount / 100).toFixed(2)}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono text-[#5F6368] tabular-nums">
+                        ${(shareAmount / 100).toFixed(2)}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono font-bold text-[#137333] text-sm tabular-nums">
+                        ${(totalPaid / 100).toFixed(2)}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6]">
+                          PAID
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

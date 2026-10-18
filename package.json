@@ -5,7 +5,8 @@
   "type": "module",
   "main": "src/server/index.ts",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -n api,web -c blue,cyan \"npm run server\" \"vite\"",
+    "dev:web": "vite",
     "build": "tsc && vite build",
     "server": "tsx src/server/index.ts",
     "test": "vitest run",
@@ -44,6 +45,7 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^10.0.6",
     "fast-check": "^3.23.2",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",

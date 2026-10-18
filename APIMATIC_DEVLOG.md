@@ -197,3 +197,35 @@ The comprehensive integration test (`src/server/__tests__/e2e-flow.test.ts`) exe
 - Full Vitest suite remains 100% passing across all 49 tests in 4.8s.
 - `tsc --noEmit` verified with zero type errors across server, gateway, core engine, and frontend.
 
+---
+
+## Phase 6 Redo: Crash-Proof Architecture & Google Cloud / FinOps Production Redesign
+
+### Track 1: Proxy, Network & Safe Client Architecture
+1. **Explicit Dual-Stack & Port Binding:**
+   - Server explicitly binds to `0.0.0.0` on port `3001` (from `PORT || 3001`).
+   - Added `GET /api/health` and `GET /health` endpoints returning JSON `{ status: "ok", mode: "sandbox", port: 3001, timestamp }`.
+   - Global `onError` and `notFound` handlers in Hono enforce valid JSON bodies on all errors (preventing unexpected EOF / JSON parsing failures).
+2. **Deterministic Vite Proxy Configuration:**
+   - Updated `vite.config.ts` to proxy `/api` strictly to `http://127.0.0.1:3001` (avoiding IPv6 `localhost` ECONNREFUSED issues on Node 20+).
+3. **Unified Single-Command Dev Execution:**
+   - Configured `concurrently` in `package.json` under `"dev"`: runs both backend API (`npm run server`) and frontend Vite (`vite`) concurrently.
+   - Verified via `curl -i http://localhost:5174/api/health` returning `200 OK` JSON through Vite proxy.
+4. **Crash-Proof API Client (`src/web/lib/api.ts`):**
+   - Implemented centralized `apiRequest<T>(path, options)` wrapper: catches network drops, validates non-empty response, verifies JSON parse, and extracts server errors.
+   - Integrated live pulsing **"API Connected (:3001)"** health indicator in navigation bar with 5-second polling.
+
+### Track 2: Enterprise Redesign — Google Cloud Console / FinOps Aesthetic
+1. **Elimination of AI-Slop Artifacts:**
+   - Stripped all dark-mode cyberpunk neon boxes, purple/violet gradients, oversized pill buttons, and action button emojis.
+   - Replaced with crisp Google Workspace / Cloud Console light mode: `#F8F9FA` canvas, `#FFFFFF` elevated cards, `1px solid #DADCE0` hairline borders, and `rounded-lg` subtle geometry.
+2. **Pixel-Perfect Financial Typography:**
+   - Loaded Google Fonts `Inter` (labels/UI) and `JetBrains Mono` (financials).
+   - Applied `.tabular-nums` (`font-variant-numeric: tabular-nums`) across all dollar figures, basis points, cent amounts, and SHA-256 hashes for vertical pixel alignment.
+3. **4 Cohesive Enterprise FinOps Screens:**
+   - **Deal Studio (Screen 1):** Clean split-screen contract drafting, real-time Gemini structured AST extraction, interactive ambiguity resolution chips, and SHA-256 deal hash-pinning.
+   - **Waterfall Simulator (Screen 2):** Interactive gross cent slider, recoup progress bar, dynamic tier split table, and `100/100 PROPERTY TESTS PASSED (fast-check Conservation Proof)` badge.
+   - **Live Settlement Ledger (Screen 3):** Real-time PayPal capture cards, fee source badges (`[FEE SOURCE: PAYPAL ACTUAL]` vs fallback `3.49% + $0.49`), batch payout items, and cryptographically chained audit log viewer with continuous SHA-256 integrity proof.
+   - **Payee Statements (Screen 4):** Payee selector tabs, balance metric cards (Earned, Paid, Carried, Deficit), itemized statement activity, and AI natural language statement citation box verified by strict integer allowlist matching.
+   - **Chaos Drawer:** Enterprise slide-over drawer executing all 8 Chaos Scenarios in parallel with millisecond telemetry and cryptographic audit proof verification.
+

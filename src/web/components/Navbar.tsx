@@ -2,8 +2,6 @@ import React from 'react';
 import {
   ShieldAlert,
   Cpu,
-  Layers,
-  PlayCircle,
   RotateCcw,
   Zap,
   Power,
@@ -11,6 +9,9 @@ import {
   Sliders,
   DollarSign,
   UserCheck,
+  CheckCircle2,
+  ArrowRight,
+  ExternalLink,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -24,6 +25,7 @@ interface NavbarProps {
   onRunRefund: () => void;
   onOpenChaos: () => void;
   isLoading: boolean;
+  apiConnected: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -37,162 +39,176 @@ export const Navbar: React.FC<NavbarProps> = ({
   onRunRefund,
   onOpenChaos,
   isLoading,
+  apiConnected,
 }) => {
   return (
-    <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
-      {/* 1. Top Honesty & Sandbox Banner */}
-      <div className="bg-slate-950 px-4 py-1.5 border-b border-slate-800/80 flex flex-wrap items-center justify-between text-xs gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-semibold border border-amber-500/30">
-            <ShieldAlert className="w-3.5 h-3.5" />
-            PAYPAL SANDBOX ONLY — NO REAL MONEY
-          </span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-            <Cpu className="w-3.5 h-3.5" />
-            AI AIR-GAP: ACTIVE (INTEGER MATH BY ENGINE)
-          </span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
-            FEE SOURCE: PAYPAL ACTUAL (FALLBACK: 3.49% + $0.49)
-          </span>
-        </div>
-
-        <button
-          onClick={onTogglePause}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded font-medium transition ${
-            isPaused
-              ? 'bg-rose-500 text-white animate-pulse'
-              : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-          }`}
-        >
-          <Power className="w-3.5 h-3.5" />
-          {isPaused ? 'PAYOUTS SUSPENDED (PAUSED)' : 'PAUSE PAYOUTS SWITCH'}
-        </button>
-      </div>
-
-      {/* 2. Main Brand & Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 bg-white border-b border-[#DADCE0] shadow-sm">
+      {/* 1. Global Header Bar */}
+      <div className="h-14 px-6 flex items-center justify-between">
+        {/* Left: Brand, Subtitle & Status Badges */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-cyan-500 to-teal-400 p-0.5 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <div className="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center font-black text-cyan-400 text-lg">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded bg-[#1A73E8] flex items-center justify-center text-white font-bold text-sm shadow-sm">
               T
             </div>
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-bold tracking-tight text-white">Tributary</span>
-              <span className="text-[10px] px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded font-mono border border-blue-500/30">
-                v1.0
+            <div>
+              <span className="font-bold text-base text-[#202124] tracking-tight">Tributary</span>
+              <span className="text-xs text-[#5F6368] hidden md:inline ml-2 font-normal">
+                Enterprise Revenue-Share Settlement
               </span>
             </div>
-            <p className="text-xs text-slate-400">Your revenue-share agreement, now executable on PayPal</p>
+          </div>
+
+          <div className="hidden lg:flex items-center gap-2 ml-4 pl-4 border-l border-[#DADCE0]">
+            {/* Sandbox Mode Pill */}
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#FEF7E0] text-[#B06000] border border-[#FEEFC3]">
+              <ShieldAlert className="w-3.5 h-3.5 text-[#B06000]" />
+              PayPal Sandbox Live
+            </span>
+
+            {/* AI Air-Gap Pill */}
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6]">
+              <Cpu className="w-3.5 h-3.5 text-[#137333]" />
+              AI Air-Gap Verified
+            </span>
+
+            {/* API Connection Indicator */}
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${
+                apiConnected
+                  ? 'bg-[#E6F4EA] text-[#137333] border-[#CEEAD6]'
+                  : 'bg-[#FCE8E6] text-[#C5221F] border-[#FAD2CF]'
+              }`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  apiConnected ? 'bg-[#137333] animate-pulse' : 'bg-[#C5221F]'
+                }`}
+              />
+              {apiConnected ? 'API Connected (:3001)' : 'API Disconnected'}
+            </span>
           </div>
         </div>
 
-        {/* Tab Switcher */}
-        <nav className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800">
+        {/* Right: Judge Action Bar & Emergency Pause */}
+        <div className="flex items-center gap-2">
+          {/* Quick Preset: Moonlit */}
           <button
-            onClick={() => setActiveTab('deal-studio')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-              activeTab === 'deal-studio'
-                ? 'bg-cyan-500 text-slate-950 font-semibold shadow'
-                : 'text-slate-400 hover:text-white'
+            onClick={onLoadMoonlitPreset}
+            disabled={isLoading}
+            title="Seed Team Moonlit: Maya is $370/$400 recouped. Ready for $100 boundary sale."
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium border border-[#DADCE0] bg-white text-[#3C4043] hover:bg-[#F8F9FA] hover:border-[#BDC1C6] active:bg-[#F1F3F4] transition-colors disabled:opacity-50"
+          >
+            <span>Preset: Moonlit ($370/$400)</span>
+          </button>
+
+          {/* Quick Preset: Creator */}
+          <button
+            onClick={onLoadCreatorPreset}
+            disabled={isLoading}
+            title="Seed Creator Launch: $500 ad recoup before 50/50 tier split"
+            className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium border border-[#DADCE0] bg-white text-[#3C4043] hover:bg-[#F8F9FA] hover:border-[#BDC1C6] active:bg-[#F1F3F4] transition-colors disabled:opacity-50"
+          >
+            <span>Preset: Creator</span>
+          </button>
+
+          {/* Run $100 Boundary Sale */}
+          <button
+            onClick={onRunBoundarySale}
+            disabled={isLoading || isPaused}
+            title="Execute $100 sale completing Maya's $400 recoup ($30) and splitting $56.42 40/30/20/10"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold bg-[#1A73E8] text-white hover:bg-[#1557B0] active:bg-[#174EA6] shadow-sm transition-colors disabled:opacity-50"
+          >
+            <DollarSign className="w-3.5 h-3.5 stroke-[2]" />
+            <span>Capture $100 Sale</span>
+          </button>
+
+          {/* Trigger $50 Refund */}
+          <button
+            onClick={onRunRefund}
+            disabled={isLoading || isPaused}
+            title="Execute $50 refund: drains $9.60 reserve to 0, nets $40.40 deficit on next sale"
+            className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium border border-[#DADCE0] bg-white text-[#3C4043] hover:bg-[#FCE8E6] hover:text-[#C5221F] hover:border-[#FAD2CF] transition-colors disabled:opacity-50"
+          >
+            <RotateCcw className="w-3.5 h-3.5 stroke-[2]" />
+            <span>Refund $50</span>
+          </button>
+
+          {/* Run Chaos Suite */}
+          <button
+            onClick={onOpenChaos}
+            disabled={isLoading}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium border border-[#DADCE0] bg-white text-[#3C4043] hover:bg-[#FEF7E0] hover:text-[#B06000] hover:border-[#FEEFC3] transition-colors"
+          >
+            <Zap className="w-3.5 h-3.5 text-[#B06000] stroke-[2]" />
+            <span>Chaos Suite</span>
+          </button>
+
+          {/* Emergency Kill Switch */}
+          <button
+            onClick={onTogglePause}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-semibold border transition-colors ${
+              isPaused
+                ? 'bg-[#C5221F] text-white border-[#C5221F] hover:bg-[#A51D1A]'
+                : 'border-[#DADCE0] text-[#5F6368] bg-white hover:bg-[#FCE8E6] hover:text-[#C5221F] hover:border-[#FAD2CF]'
             }`}
           >
-            <FileCode2 className="w-4 h-4" />
-            1. Deal Studio
+            <Power className="w-3.5 h-3.5 stroke-[2]" />
+            <span>{isPaused ? 'HALTED' : 'Kill Switch'}</span>
           </button>
-          <button
-            onClick={() => setActiveTab('simulator')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-              activeTab === 'simulator'
-                ? 'bg-cyan-500 text-slate-950 font-semibold shadow'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Sliders className="w-4 h-4" />
-            2. Simulator
-          </button>
-          <button
-            onClick={() => setActiveTab('ledger')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-              activeTab === 'ledger'
-                ? 'bg-cyan-500 text-slate-950 font-semibold shadow'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <DollarSign className="w-4 h-4" />
-            3. Live Ledger
-          </button>
-          <button
-            onClick={() => setActiveTab('statements')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-              activeTab === 'statements'
-                ? 'bg-cyan-500 text-slate-950 font-semibold shadow'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <UserCheck className="w-4 h-4" />
-            4. Statements
-          </button>
-        </nav>
-      </div>
-
-      {/* 3. 1-Click Judge Quick-Load Action Bar */}
-      <div className="bg-slate-900 border-t border-slate-800/80 px-4 py-2">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-            <Layers className="w-4 h-4 text-cyan-400" />
-            <span>Judge 1-Click Demo Bar:</span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={onLoadMoonlitPreset}
-              disabled={isLoading}
-              className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 flex items-center gap-1.5 transition disabled:opacity-50"
-            >
-              <PlayCircle className="w-3.5 h-3.5 text-cyan-400" />
-              Preset 1: Moonlit Game ($370/$400 Recouped)
-            </button>
-
-            <button
-              onClick={onLoadCreatorPreset}
-              disabled={isLoading}
-              className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 flex items-center gap-1.5 transition disabled:opacity-50"
-            >
-              <PlayCircle className="w-3.5 h-3.5 text-amber-400" />
-              Preset 2: Creator + Ad Agency
-            </button>
-
-            <button
-              onClick={onRunBoundarySale}
-              disabled={isLoading || isPaused}
-              className="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white flex items-center gap-1.5 transition disabled:opacity-50 shadow-sm"
-            >
-              <span>🛒</span>
-              Run $100 Boundary Sale
-            </button>
-
-            <button
-              onClick={onRunRefund}
-              disabled={isLoading}
-              className="px-2.5 py-1 rounded bg-rose-600/80 hover:bg-rose-500 text-xs font-semibold text-white flex items-center gap-1.5 transition disabled:opacity-50"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Refund $50 Post-Payout
-            </button>
-
-            <button
-              onClick={onOpenChaos}
-              disabled={isLoading}
-              className="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold flex items-center gap-1.5 transition"
-            >
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-              Run 8 Chaos Tests
-            </button>
-          </div>
         </div>
       </div>
+
+      {/* 2. Subheader Tabs (Google Cloud Console Style) */}
+      <nav className="px-6 flex items-center gap-8 border-t border-[#F1F3F4] text-xs font-medium">
+        <button
+          onClick={() => setActiveTab('deal-studio')}
+          className={`py-3 flex items-center gap-2 border-b-2 transition-all ${
+            activeTab === 'deal-studio'
+              ? 'border-[#1A73E8] text-[#1A73E8] font-semibold'
+              : 'border-transparent text-[#5F6368] hover:text-[#202124]'
+          }`}
+        >
+          <FileCode2 className="w-4 h-4 stroke-[1.75]" />
+          <span>1. Deal Studio</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('simulator')}
+          className={`py-3 flex items-center gap-2 border-b-2 transition-all ${
+            activeTab === 'simulator'
+              ? 'border-[#1A73E8] text-[#1A73E8] font-semibold'
+              : 'border-transparent text-[#5F6368] hover:text-[#202124]'
+          }`}
+        >
+          <Sliders className="w-4 h-4 stroke-[1.75]" />
+          <span>2. Waterfall Simulator</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('ledger')}
+          className={`py-3 flex items-center gap-2 border-b-2 transition-all ${
+            activeTab === 'ledger'
+              ? 'border-[#1A73E8] text-[#1A73E8] font-semibold'
+              : 'border-transparent text-[#5F6368] hover:text-[#202124]'
+          }`}
+        >
+          <DollarSign className="w-4 h-4 stroke-[1.75]" />
+          <span>3. Live Settlement Ledger</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('statements')}
+          className={`py-3 flex items-center gap-2 border-b-2 transition-all ${
+            activeTab === 'statements'
+              ? 'border-[#1A73E8] text-[#1A73E8] font-semibold'
+              : 'border-transparent text-[#5F6368] hover:text-[#202124]'
+          }`}
+        >
+          <UserCheck className="w-4 h-4 stroke-[1.75]" />
+          <span>4. Payee Statements</span>
+        </button>
+      </nav>
     </header>
   );
 };
