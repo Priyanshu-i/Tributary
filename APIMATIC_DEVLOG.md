@@ -67,3 +67,23 @@ During the Phase 0 Day-1 Smoke Test against the live PayPal sandbox, our inspect
   - Netted out on subsequent sale with 100% cent conservation.
 - 2,000 property-based randomized test runs via `fast-check` confirmed zero cents lost or created across arbitrary basis points and amounts up to $50,000.00.
 
+---
+
+## 5. Phase 2: SQLite Event Store, Hash-Chained Audit Log & 3-Layer Idempotency
+
+### 5.1 3-Layer Idempotency Guardrail Architecture
+To guarantee that network retries, duplicate webhooks, double-clicks, or server crashes can never trigger duplicate payouts or double-counting:
+1. **Layer 1 (PayPal API Idempotency):**
+   - Deterministic `PayPal-Request-Id` derived from `SHA256(action + ":" + entityId)` injected into all SDK capture and refund requests.
+2. **Layer 2 (Database-Enforced Batch Mutex):**
+   - `sender_batch_id = "trib_" + SHA256(saleId + ":" + dealHash).slice(0, 19)` backed by a SQLite `UNIQUE PRIMARY KEY` constraint on `payout_batches`.
+   - The repository guarantees that calling `getOrCreatePayoutBatch` with the same `(saleId, dealHash)` immediately returns the existing batch record `{ isDuplicate: true }` without hitting PayPal's payout endpoint twice.
+3. **Layer 3 (Webhook Receiver Deduplication):**
+   - Every incoming PayPal webhook is checked against the `webhook_events` table by `event_id PRIMARY KEY`. Duplicate deliveries are flagged `{ duplicate: true }` and exit immediately with zero state mutation.
+
+### 5.2 Cryptographically Hash-Chained Audit Log
+- All financial and lifecycle state transitions (`DEAL_CREATED`, `DEAL_SIGNED`, `SALE_CAPTURED`, `WATERFALL_COMPUTED`, `PAYOUT_BATCH_CREATED`, `PAYOUT_ITEM_UPDATED`, `REFUND_CLAWBACK_APPLIED`, `WEBHOOK_PROCESSED`, `INVARIANT_HALT`) append to an immutable `audit_log` table.
+- Each entry calculates:
+  `entry_hash = SHA256(prev_hash + timestamp + event_type + canonicalJson(payload))`
+- `verifyAuditChain()` performs full-chain traversal and cryptographic verification: any modification to historical payloads, timestamps, or hash linkages immediately reports `{ valid: false, corruptedAtIndex }`.
+
