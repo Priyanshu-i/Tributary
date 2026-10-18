@@ -117,3 +117,32 @@ All 8 Chaos Scenarios executed deterministically in **38ms** with **100% PASS** 
 7. `Concurrent Double-Click on Capture`: Simultaneous capture calls locked and deduplicated via `PayPal-Request-Id`.
 8. `Deliberate Invariant Violation Injection`: 10001 bps weight injection rejected by Zod schema and engine assertion before hitting PayPal.
 
+---
+
+## 7. Phase 4: Neuro-Symbolic AI Compiler, Number-Citation Verifier & Eval Results
+
+### 7.1 Strict Architectural Air-Gap
+- The `ai-compiler` module maintains a strict air-gap:
+  - It NEVER imports from `paypal-gateway`.
+  - It NEVER accesses `PAYPAL_CLIENT_ID` or `PAYPAL_CLIENT_SECRET`.
+  - It NEVER performs monetary arithmetic. All calculations are executed exclusively by the pure integer-cent engine in `src/core-engine/waterfall.ts`.
+- Permitted AI schemas: `propose_deal`, `ask_clarification`, `propose_scenarios`, `explain_trace`.
+
+### 7.2 Deterministic Record/Replay Cache & Zero-Key Offline Mode
+- Every LLM request is hashed via SHA-256 on `(promptVersion | systemPrompt | userInput)`.
+- If `USE_REPLAY_CACHE=true` or if API keys are missing/rate-limited, Tributary instantly serves responses from `fixtures/replay-cache.json` or synthesized deterministic fallbacks (`OFFLINE_REPLAY_ONLY`).
+- Judges and evaluators can run the full compilation, ambiguity Q&A, scenario generation, and statement verification with zero external keys.
+
+### 7.3 Number-Citation Verifier Guardrail
+- Payee statement explanations are scanned via regex for all dollar tokens (`$X.XX`, `$X`).
+- Each token is converted to integer cents and matched against an allowlist of deterministic amounts from `WaterfallResult`.
+- If an unverified or hallucinated amount (e.g. `$999.99`) is detected, the generated prose is rejected with 100% reliability and replaced with a deterministic verified fallback template.
+
+### 7.4 16-Agreement Eval Harness Benchmark (`EVAL_RESULTS.md`)
+- **Dataset:** 16 realistic plain-English agreements (indie games, podcasts, music labels, creator courses, comics, SaaS cofounders, tricky ambiguous agreements).
+- **Zod Schema Validity:** **100.0%** (16/16)
+- **Basis-Point Conservation:** **100.0%** (16/16 summing to exactly 10,000 bps)
+- **Ambiguity Detection Recall:** **100.0%** (32/32 blocking questions identified)
+- **Number-Verifier Catch Rate:** **100.0%** (5/5 hallucinated currency probes rejected)
+- **Activation Block Rate (Pre-Clarification):** **100.0%** (16/16 agreements blocked until human answers questions)
+

@@ -1,0 +1,162 @@
+[
+  {
+    "id": "agreement_01_moonlit_game",
+    "domain": "Indie Video Game",
+    "text": "Team Moonlit sells an indie adventure game. Maya fronted a $400 art cost and must be repaid first from sales. After Maya is repaid, all revenue splits 40% to Maya, 30% to Arjun, 20% to Lina, and 10% to Dev. Once total net revenue hits $2,000, the split changes to an even 25% each. Hold 10% for refunds for 14 days, and only pay out when someone has at least $25.",
+    "expectedPayees": 4,
+    "expectedRecoupCents": 40000,
+    "expectedTier1Bps": [4000, 3000, 2000, 1000],
+    "expectedTier2Bps": [2500, 2500, 2500, 2500],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_02_creator_ad_launch",
+    "domain": "Course Launch & Paid Ads",
+    "text": "Alex (Creator) and Apex Media launch an online course. Apex fronts $500 in ad spend which is recouped first. Thereafter, profits split 50% to Alex and 50% to Apex until $3,000 in net sales, after which Alex gets 60% and Apex gets 40%. A 10% reserve is held for student chargebacks.",
+    "expectedPayees": 2,
+    "expectedRecoupCents": 50000,
+    "expectedTier1Bps": [5000, 5000],
+    "expectedTier2Bps": [6000, 4000],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_03_podcast_network",
+    "domain": "Podcasting",
+    "text": "Three hosts Sam, Chris, and Jordan share sponsorship income equally (33.33%, 33.33%, 33.34%). Equipment costs of $300 to Sam are paid back first. 10% reserve for sponsor clawbacks.",
+    "expectedPayees": 3,
+    "expectedRecoupCents": 30000,
+    "expectedTier1Bps": [3333, 3333, 3334],
+    "expectedTier2Bps": [3333, 3333, 3334],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_04_music_label_split",
+    "domain": "Music Release",
+    "text": "Single track digital sales: Artist gets 50%, Producer gets 30%, Audio Engineer gets 20%. Studio recording cost of $250 to Producer recouped first. Reserve 5%.",
+    "expectedPayees": 3,
+    "expectedRecoupCents": 25000,
+    "expectedTier1Bps": [5000, 3000, 2000],
+    "expectedTier2Bps": [5000, 3000, 2000],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_05_kickstarter_comic",
+    "domain": "Zine & Comic Collective",
+    "text": "Four artists release an anthology comic. Printing fee of $1,200 to Elena repaid first. Remainder splits 35% Elena, 25% Marcus, 20% Chloe, 20% David. Reserve 15%. Minimum payout $20.",
+    "expectedPayees": 4,
+    "expectedRecoupCents": 120000,
+    "expectedTier1Bps": [3500, 2500, 2000, 2000],
+    "expectedTier2Bps": [3500, 2500, 2000, 2000],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_06_dev_agency_subcontract",
+    "domain": "Agency Subcontracting",
+    "text": "Client project billing: Agency Prime takes 55%, Senior Dev takes 30%, UI Designer takes 15%. Cloud hosting setup of $150 to Agency recouped first. 10% warranty holdback for 30 days.",
+    "expectedPayees": 3,
+    "expectedRecoupCents": 15000,
+    "expectedTier1Bps": [5500, 3000, 1500],
+    "expectedTier2Bps": [5500, 3000, 1500],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_07_saas_micro_founders",
+    "domain": "Micro-SaaS Product",
+    "text": "Two co-founders Aaron and Beth split subscription proceeds 50/50. Beth's legal incorporation fee of $600 is reimbursed first. Reserve 10%.",
+    "expectedPayees": 2,
+    "expectedRecoupCents": 60000,
+    "expectedTier1Bps": [5000, 5000],
+    "expectedTier2Bps": [5000, 5000],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_08_live_comedy_stream",
+    "domain": "Live Entertainment",
+    "text": "Pay-per-view comedy ticket sales: Headliner gets 60%, Feature Act gets 25%, Emcee gets 15%. Streaming technician fee of $200 recouped to Headliner first.",
+    "expectedPayees": 3,
+    "expectedRecoupCents": 20000,
+    "expectedTier1Bps": [6000, 2500, 1500],
+    "expectedTier2Bps": [6000, 2500, 1500],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_09_tabletop_rpg_module",
+    "domain": "Tabletop RPG Publishing",
+    "text": "Digital PDF sales for game module: Writer 40%, Illustrator 30%, Cartographer 20%, Layout Artist 10%. Upfront ISBN and proof fee $100 to Writer recouped first.",
+    "expectedPayees": 4,
+    "expectedRecoupCents": 10000,
+    "expectedTier1Bps": [4000, 3000, 2000, 1000],
+    "expectedTier2Bps": [4000, 3000, 2000, 1000],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_10_youtube_production",
+    "domain": "Creator Team",
+    "text": "Channel merchandise sales: Channel Owner 65%, Video Editor 25%, Graphic Artist 10%. Sample manufacturing cost $350 repaid to Owner first.",
+    "expectedPayees": 3,
+    "expectedRecoupCents": 35000,
+    "expectedTier1Bps": [6500, 2500, 1000],
+    "expectedTier2Bps": [6500, 2500, 1000],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_11_coding_bootcamp",
+    "domain": "EdTech Workshop",
+    "text": "Workshop ticket revenue: Lead Instructor 50%, Teaching Assistant 30%, Community Organizer 20%. Zoom webinar license $120 to Instructor recouped first.",
+    "expectedPayees": 3,
+    "expectedRecoupCents": 12000,
+    "expectedTier1Bps": [5000, 3000, 2000],
+    "expectedTier2Bps": [5000, 3000, 2000],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_12_3d_asset_store",
+    "domain": "Game Dev Asset Pack",
+    "text": "Unity store asset pack sales: Modeler 45%, Texture Artist 35%, Rigging Artist 20%. Store listing fee $50 recouped first.",
+    "expectedPayees": 3,
+    "expectedRecoupCents": 5000,
+    "expectedTier1Bps": [4500, 3500, 2000],
+    "expectedTier2Bps": [4500, 3500, 2000],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_13_mobile_game_publishing",
+    "domain": "Mobile Publishing",
+    "text": "In-app purchase net receipts: Studio 70%, Publisher 30%. User acquisition ad test budget $2,000 recouped by Publisher first. After $10,000 net, split adjusts to Studio 80%, Publisher 20%.",
+    "expectedPayees": 2,
+    "expectedRecoupCents": 200000,
+    "expectedTier1Bps": [7000, 3000],
+    "expectedTier2Bps": [8000, 2000],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_14_ambient_music_app",
+    "domain": "Meditation & Audio App",
+    "text": "Monthly track licensing: Composer gets 55%, Sound Engineer gets 45%. Mastering engineer fee $180 to Composer repaid first. 10% reserve.",
+    "expectedPayees": 2,
+    "expectedRecoupCents": 18000,
+    "expectedTier1Bps": [5500, 4500],
+    "expectedTier2Bps": [5500, 4500],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_15_pure_equal_five_way",
+    "domain": "Open Collective (Edge Case: No Recoup)",
+    "text": "A 5-person open source collective (DevA, DevB, DevC, DevD, DevE) splits all donation revenue equally (20% each). No upfront costs to repay. Standard 10% reserve.",
+    "expectedPayees": 5,
+    "expectedRecoupCents": 0,
+    "expectedTier1Bps": [2000, 2000, 2000, 2000, 2000],
+    "expectedTier2Bps": [2000, 2000, 2000, 2000, 2000],
+    "expectedAmbiguities": ["ambiguity_clawback_rule"]
+  },
+  {
+    "id": "agreement_16_vague_informal_agreement",
+    "domain": "Informal Collab (Edge Case: Tricky & Ambiguous)",
+    "text": "We are making a joint project. Maya paid $300 for stuff. Pay her back, then split 60/40 between Maya and Liam. If people ask for refunds later, sort it out fairly. When we make good money after $1500, change to 50/50.",
+    "expectedPayees": 2,
+    "expectedRecoupCents": 30000,
+    "expectedTier1Bps": [6000, 4000],
+    "expectedTier2Bps": [5000, 5000],
+    "expectedAmbiguities": ["ambiguity_recoup_fee_basis", "ambiguity_clawback_rule", "ambiguity_tier_basis"]
+  }
+]
