@@ -87,3 +87,33 @@ To guarantee that network retries, duplicate webhooks, double-clicks, or server 
   `entry_hash = SHA256(prev_hash + timestamp + event_type + canonicalJson(payload))`
 - `verifyAuditChain()` performs full-chain traversal and cryptographic verification: any modification to historical payloads, timestamps, or hash linkages immediately reports `{ valid: false, corruptedAtIndex }`.
 
+---
+
+## 6. Phase 3: PayPal Gateway, Webhook Receiver & 8-Test Chaos Suite
+
+### 6.1 APIMatic SDK Integration Details
+- **Checkout Orders v2 (`createDealOrder`):**
+  Uses `OrdersController.createOrder` with `CheckoutPaymentIntent.Capture` and `customId: dealId`. The `paypalRequestId` is passed directly in the arguments map to ensure atomic order creation.
+- **Order Captures v2 (`captureDealOrder`):**
+  Uses `OrdersController.captureOrder` with idempotency key. Defensive property extraction handles both SDK camelCase (`sellerReceivableBreakdown.paypalFee.value`) and REST snake_case (`seller_receivable_breakdown.paypal_fee.value`), guaranteeing integer-cent conversion via `parseAmountToCents()`.
+- **Payment Refunds v2 (`refundCapturedOrder`):**
+  Uses `PaymentsController.refundCapturedPayment` with `captureId` and integer-cent amount payload.
+
+### 6.2 PayPal Payouts v1 & Webhook Receiver
+- **Payouts REST Client:** Implements OAuth2 token caching and `POST /v1/payments/payouts` with deterministic `sender_batch_id = trib_<hash>`.
+- **Webhook Receiver:**
+  - Verifies signature headers (`PAYPAL-AUTH-ALGO`, `PAYPAL-CERT-URL`, `PAYPAL-TRANSMISSION-ID`, `PAYPAL-TRANSMISSION-SIG`, `PAYPAL-TRANSMISSION-TIME`) via `POST /v1/notifications/verify-webhook-signature`.
+  - **Out-of-Order Queue:** When `PAYMENT.CAPTURE.REFUNDED` arrives before `PAYMENT.CAPTURE.COMPLETED`, the refund is safely staged in `pending_out_of_order_events` and automatically reconciled when the capture arrives.
+  - **Unclaimed Returned Funds:** When an unclaimed payout item is cancelled or returned (`PAYMENT.PAYOUTS-ITEM.RETURNED`), funds are credited directly back to the payee's `carriedForwardCents` in `payee_balances`.
+
+### 6.3 8-Scenario Chaos Test Results (SPEC.md Section 11)
+All 8 Chaos Scenarios executed deterministically in **38ms** with **100% PASS** and unbroken SHA-256 audit continuity:
+1. `Duplicate Webhook Delivery`: Second identical event returned `DUPLICATE`, zero duplicate sales or payouts.
+2. `Tampered Webhook Signature`: Forged signature header rejected immediately (`REJECTED_SIGNATURE`), audit log recorded `INVARIANT_HALT`.
+3. `Out-of-Order Refund Before Capture`: Refund staged in `pending_out_of_order_events` and automatically reconciled upon capture arrival.
+4. `Replayed Payout Execution Request`: Database-enforced `sender_batch_id` blocked duplicate network dispatch.
+5. `Payout Item UNCLAIMED -> Returned`: $5.64 returned funds credited back to payee's carried balance.
+6. `Order vs. Capture Amount Mismatch`: $10 capture for $100 order quarantined, payout halted.
+7. `Concurrent Double-Click on Capture`: Simultaneous capture calls locked and deduplicated via `PayPal-Request-Id`.
+8. `Deliberate Invariant Violation Injection`: 10001 bps weight injection rejected by Zod schema and engine assertion before hitting PayPal.
+
