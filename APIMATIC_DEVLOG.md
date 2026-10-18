@@ -179,3 +179,21 @@ The comprehensive integration test (`src/server/__tests__/e2e-flow.test.ts`) exe
 9. Cryptographic audit chain verified unbroken.
 10. Global kill-switch verified halting checkout payouts with HTTP 403.
 
+---
+
+## Phase 6: Frontend UI, 4 Screens, 1-Click Judge Bar & Chaos Drawer
+
+### 1. UI Architecture & Screen Organization
+- Built with **React 18 + Vite + Tailwind CSS + Lucide Icons**, with strict dark-mode financial terminal styling and explicit honesty badges:
+  - `Navbar.tsx`: 1-Click Judge Action Bar with quick-load demo presets, express checkout/refund triggers, 8-test chaos drawer toggle, emergency kill-switch, and persistent badges (`[PAYPAL SANDBOX ONLY]`, `[AI AIR-GAP: ACTIVE]`, `[DEMO CLOCK]`).
+  - `DealStudio.tsx` (Screen 1): Natural language contract drafting, real-time Gemini structured compilation into `DealSpec`, interactive clarification chips for contract ambiguities, and SHA-256 deal hash-pinning.
+  - `Simulator.tsx` (Screen 2): Interactive gross sales slider and recoup tracker running client-side integer-cent waterfall with dynamic tier boundary splits and property proof verification badge.
+  - `LiveLedger.tsx` (Screen 3): Live PayPal sale capture inspector showing exact integer-cent breakdowns, fee source badges (`[FEE SOURCE: PAYPAL ACTUAL]` vs fallback `3.49% + $0.49`), batch payout items, and live cryptographically chained audit log with tamper-evidence verification.
+  - `PayeeStatement.tsx` (Screen 4): Payee balance breakdown (earned, paid, carried, deficit) accompanied by AI statement explanations verified by strict number extraction against engine allowlist.
+  - `ChaosDrawer.tsx`: Slide-over test runner executing all 8 Chaos Scenarios (duplicate webhooks, signature tampering, out-of-order refunds, batch replays, unclaimed timeouts, double-clicks, amount mismatches, and deliberate invariant tampering) with real-time millisecond telemetry.
+
+### 2. Build & Verification
+- Bundled via `vite build`: 1,595 modules transformed in 15.7s, producing clean minified production assets in `dist/`.
+- Full Vitest suite remains 100% passing across all 49 tests in 4.8s.
+- `tsc --noEmit` verified with zero type errors across server, gateway, core engine, and frontend.
+

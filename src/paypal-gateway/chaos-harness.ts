@@ -375,8 +375,8 @@ export class ChaosHarness {
    */
   public async test6OrderVsCaptureAmountMismatch(): Promise<ChaosTestResult> {
     const start = Date.now();
-    const orderExpectedCents = 10000; // Expected $100.00
-    const captureReportedCents = 1000; // Fraudulent capture reports $10.00
+    const orderExpectedCents: number = 10000; // Expected $100.00
+    const captureReportedCents: number = 1000; // Fraudulent capture reports $10.00
 
     let mismatchCaught = false;
 
