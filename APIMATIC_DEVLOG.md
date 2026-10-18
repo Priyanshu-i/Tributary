@@ -43,7 +43,27 @@ During the Phase 0 Day-1 Smoke Test against the live PayPal sandbox, our inspect
 
 ---
 
-## 3. APIMatic Context & Developer Experience Notes
-- **Strict Typing:** `OrdersController` strictly types `CheckoutPaymentIntent` enum values (`Capture`, `Authorize`), eliminating invalid intent bugs at compile time.
-- **Header Injection:** `paypalRequestId` is an explicit parameter in `createOrder`, `captureOrder`, and `refundCapturedPayment`, ensuring idempotency without raw header tampering.
-- **Error Handling:** APIMatic SDK throws `ApiError` instances containing structured HTTP response bodies and HTTP status codes, enabling clean classification for our Chaos Test runner.
+## 4. Phase 1: Pure Integer-Cent Waterfall & Breakdown Mapping
+
+### 4.1 PayPal Fee Ingestion & Zero-Float Invariants
+- PayPal captures return fee breakdowns in strings (e.g. `"3.98"`).
+- The `parseAmountToCents()` parser converts these directly to integer cents (`398`) without intermediate floating-point representation.
+- In `executeSaleWaterfall`, the engine maps PayPal's actual fee `F` from `sellerReceivableBreakdown.paypalFee.value` when present (`FEE SOURCE: PAYPAL_ACTUAL`), falling back to `Math.floor((G * 349) / 10000) + 49` when in isolated sandbox tests (`FEE SOURCE: FALLBACK_SCHEDULE`).
+
+### 4.2 Exact Demo Climax & Refund Clawback Proof
+- Verified the exact Demo Climax on Team Moonlit's agreement:
+  - Sale: Gross `$100.00` (`10000` cents), Fee `$3.98` (`398` cents), Net `$96.02` (`9602` cents).
+  - 10% Reserve: `$9.60` (`960` cents). Distributable: `$86.42` (`8642` cents).
+  - Maya upfront recoup completed: `$30.00` (`3000` cents) out of `$400.00` total ($370 seeded).
+  - Remaining pool: `$56.42` (`5642` cents) split `40/30/20/10` via Largest-Remainder allocation:
+    - Maya: `$22.57` (`2257` cents) + Recoup `$30.00` = **`$52.57`** (`5257` cents)
+    - Arjun: **`$16.93`** (`1693` cents)
+    - Lina: **`$11.28`** (`1128` cents)
+    - Dev: **`$5.64`** (`564` cents)
+  - Hard Conservation Invariant holds: `398 + 960 + 5257 + 1693 + 1128 + 564 === 10000`.
+- Verified follow-up `$50.00` post-payout refund:
+  - Reserve drains from `960 -> 0`.
+  - Remaining deficit (`4040` cents) allocated pro-rata to original sale earnings into `recoveryDeficitCents`.
+  - Netted out on subsequent sale with 100% cent conservation.
+- 2,000 property-based randomized test runs via `fast-check` confirmed zero cents lost or created across arbitrary basis points and amounts up to $50,000.00.
+
