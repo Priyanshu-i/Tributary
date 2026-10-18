@@ -10,7 +10,7 @@ export async function apiRequest<T>(path: string, options?: RequestInit): Promis
       ...options,
     });
   } catch (networkErr) {
-    throw new Error('Cannot reach Tributary API server (:3001). Ensure `npm run dev` is running both server and web.');
+    throw new Error('Cannot reach Tributary API server. Please ensure the server is running and check network connectivity.');
   }
 
   const rawText = await res.text();

@@ -85,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   apiConnected ? 'bg-[#137333] animate-pulse' : 'bg-[#C5221F]'
                 }`}
               />
-              {apiConnected ? 'API Connected (:3001)' : 'API Disconnected'}
+              {apiConnected ? 'API Connected (Live)' : 'API Disconnected'}
             </span>
           </div>
         </div>

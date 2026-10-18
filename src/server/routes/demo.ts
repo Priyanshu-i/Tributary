@@ -16,10 +16,10 @@ export function createDemoRouter(state: AppState) {
           version: 1,
           title: 'Moonlit Indie Game Revenue Share Agreement',
           payees: [
-            { id: 'maya', name: 'Maya Lin', email: process.env.PAYPAL_PAYEE_MAYA || 'maya@example.com', tier1Bps: 4000, tier2Bps: 2500 },
-            { id: 'arjun', name: 'Arjun Rao', email: process.env.PAYPAL_PAYEE_ARJUN || 'arjun@example.com', tier1Bps: 3000, tier2Bps: 2500 },
-            { id: 'lina', name: 'Lina Chen', email: process.env.PAYPAL_PAYEE_LINA || 'lina@example.com', tier1Bps: 2000, tier2Bps: 2500 },
-            { id: 'dev', name: 'Dev Patel', email: process.env.PAYPAL_PAYEE_DEV || 'dev@example.com', tier1Bps: 1000, tier2Bps: 2500 },
+            { id: 'maya', name: 'Maya Lin', email: process.env.PAYPAL_PAYEE_MAYA_EMAIL || process.env.PAYPAL_PAYEE_MAYA || 'maya-payee@personal.example.com', tier1Bps: 4000, tier2Bps: 2500 },
+            { id: 'arjun', name: 'Arjun Rao', email: process.env.PAYPAL_PAYEE_ARJUN_EMAIL || process.env.PAYPAL_PAYEE_ARJUN || 'arjun-payee@personal.example.com', tier1Bps: 3000, tier2Bps: 2500 },
+            { id: 'lina', name: 'Lina Chen', email: process.env.PAYPAL_PAYEE_LINA_EMAIL || process.env.PAYPAL_PAYEE_LINA || 'lina-payee@personal.example.com', tier1Bps: 2000, tier2Bps: 2500 },
+            { id: 'dev', name: 'Dev Patel', email: process.env.PAYPAL_PAYEE_DEV_EMAIL || process.env.PAYPAL_PAYEE_DEV || 'dev-payee@personal.example.com', tier1Bps: 1000, tier2Bps: 2500 },
           ],
           recoupBucket: {
             payeeId: 'maya',

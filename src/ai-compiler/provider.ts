@@ -116,7 +116,9 @@ export async function queryAIProvider(req: LLMRequest): Promise<LLMResponse> {
   // 2. Call Gemini Flash API via HTTPS
   try {
     const envModel = process.env.GEMINI_MODEL;
-    const model = (envModel && envModel !== 'gemini-2.5-flash') ? envModel : 'gemini-1.5-flash';
+    const model = (envModel && !envModel.includes('2.5') && !envModel.includes('1.5'))
+      ? envModel
+      : 'gemini-flash-latest';
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
 
     const apiBody = {
