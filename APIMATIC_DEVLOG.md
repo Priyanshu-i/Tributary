@@ -146,3 +146,36 @@ All 8 Chaos Scenarios executed deterministically in **38ms** with **100% PASS** 
 - **Number-Verifier Catch Rate:** **100.0%** (5/5 hallucinated currency probes rejected)
 - **Activation Block Rate (Pre-Clarification):** **100.0%** (16/16 agreements blocked until human answers questions)
 
+---
+
+## 8. Phase 5: Backend API Server & E2E Demo Lifecycle
+
+### 8.1 API Architecture Matrix
+- **Deals API (`/api/deals`):**
+  - `POST /compile`: AI parsing, Zod validation, and blocking ambiguity extraction.
+  - `POST /:id/lock`: SHA-256 hash pinning and immutable version sign-off.
+  - `POST /:id/simulate`: Proposes 3 boundary scenarios and runs 100 fast-check property conservation checks.
+  - `GET /:id/ledger`: Full tamper-evident ledger state, sales history, payout batches, and audit verification.
+  - `GET /:id/statements/:payeeId`: Citation-verified AI payee earnings statement.
+- **Checkout & Payouts API (`/api/checkout`):**
+  - `POST /create-order`: PayPal Orders v2 create.
+  - `POST /capture-order`: Captures order, enforces global kill-switch and per-batch caps, computes waterfall, dispatches batch payout.
+  - `POST /sales/:id/refund`: Executes PayPal refund, drains reserve, allocates deficit to recovery balances.
+- **Demo Seeding API (`/api/demo`):**
+  - `POST /load-preset`: 1-click loading of Preset 1 (**Team Moonlit** at `$370.00 / $400.00` recouped so the very next `$100.00` order triggers the boundary-crossing demo on camera) or Preset 2 (**Creator Launch**).
+- **System API (`/api/system`):**
+  - `POST /pause`: Emergency global kill-switch suspending all automated batch payouts.
+
+### 8.2 End-to-End Demo Lifecycle Verification
+The comprehensive integration test (`src/server/__tests__/e2e-flow.test.ts`) executed the full 10-step lifecycle in sequence:
+1. Compiled Moonlit text -> blocked with 3 ambiguities.
+2. Answered ambiguities -> `canActivate: true`.
+3. Locked immutable deal with 64-character SHA-256 hash.
+4. Seeded Maya at `$370.00 / $400.00` recouped.
+5. Captured `$100.00` sale ($3.98 fee, $9.60 reserve).
+6. Dispatched exact Demo Climax payouts: **Maya `$52.57`**, **Arjun `$16.93`**, **Lina `$11.28`**, **Dev `$5.64`** (Exact Cent Conservation: `$100.00 === $52.57 + $16.93 + $11.28 + $5.64 + $9.60 + $3.98`).
+7. Executed `$50.00` refund -> reserve drained from `$9.60 -> $0.00`, remaining `$40.40` deficit allocated pro-rata (`$24.58`, `$7.91`, `$5.27`, `$2.64`).
+8. Generated Maya's statement -> verified citation `$52.57`.
+9. Cryptographic audit chain verified unbroken.
+10. Global kill-switch verified halting checkout payouts with HTTP 403.
+
