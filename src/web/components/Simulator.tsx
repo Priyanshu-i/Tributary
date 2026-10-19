@@ -276,9 +276,13 @@ export const Simulator: React.FC<SimulatorProps> = ({ currentDeal, onSimulate, i
             <div className="p-3 rounded-lg border border-[#DADCE0] bg-[#F8F9FA] space-y-1">
               <span className="text-[10px] uppercase font-bold text-[#80868B]">Step 4: Distributable Pool</span>
               <div className="text-base font-bold text-[#137333] font-mono tabular-nums">
-                ${(currentTrace.distributableCents / 100).toFixed(2)}
+                ${(currentTrace.remainingDistributableCents / 100).toFixed(2)}
               </div>
-              <div className="text-[11px] text-[#5F6368]">40 / 30 / 20 / 10 Split</div>
+              <div className="text-[11px] text-[#5F6368]">
+                {currentTrace.recoupPaidCents > 0
+                  ? `from $${(currentTrace.distributableCents / 100).toFixed(2)} after $${(currentTrace.recoupPaidCents / 100).toFixed(2)} recoup · 40/30/20/10 split`
+                  : `from $${(currentTrace.distributableCents / 100).toFixed(2)} · 40/30/20/10 split`}
+              </div>
             </div>
           </div>
 
@@ -326,7 +330,7 @@ export const Simulator: React.FC<SimulatorProps> = ({ currentDeal, onSimulate, i
                 Hard Conservation Invariant Verified:
               </span>
               <span className="font-mono text-[#137333] tabular-nums">
-                Fee (${(currentTrace.feeCents / 100).toFixed(2)}) + Reserve (${(currentTrace.reserveCents / 100).toFixed(2)}) + Payouts (${(currentTrace.totalPayoutCents / 100).toFixed(2)}) === Gross (${(currentTrace.grossCents / 100).toFixed(2)})
+                Fee (${(currentTrace.feeCents / 100).toFixed(2)}) + Reserve (${(currentTrace.reserveCents / 100).toFixed(2)}) + Recoup (${(currentTrace.recoupPaidCents / 100).toFixed(2)}) + Split (${(currentTrace.remainingDistributableCents / 100).toFixed(2)}) === Gross (${(currentTrace.grossCents / 100).toFixed(2)})
               </span>
             </div>
             <span className="px-2 py-0.5 rounded bg-white text-[#137333] font-mono font-bold text-[11px] border border-[#CEEAD6]">

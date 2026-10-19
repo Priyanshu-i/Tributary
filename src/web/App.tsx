@@ -216,7 +216,7 @@ export const App: React.FC = () => {
         setActiveTab('ledger');
         setNotification({
           type: 'success',
-          message: `Captured $100.00 sale! Maya recoup finished ($30.00) + Maya split ($22.57) = $52.57 payout. Arjun: $16.93, Lina: $11.28, Dev: $5.64. Conservation verified!`,
+          message: '$100.00 Captured -> $3.98 Fee | $9.60 Reserve | $30.00 Maya Recoup | $56.42 Split across 4 Payees',
         });
       }
     } catch (err: any) {
@@ -248,8 +248,8 @@ export const App: React.FC = () => {
         await refreshLedger(currentDeal.dealId);
         setActiveTab('ledger');
         setNotification({
-          type: 'success',
-          message: `Processed $50.00 refund! Reserve drained $9.60 -> $0.00. Remaining deficit $40.40 allocated to payees for recovery netting.`,
+          type: 'info',
+          message: '$50.00 Refund Processed -> $9.60 Absorbed by Reserve | -$40.40 Net Clawback Allocated across Payees',
         });
       }
     } catch (err: any) {
@@ -273,13 +273,18 @@ export const App: React.FC = () => {
     }
   };
 
-  // Run Chaos Harness Suite
+  // Run Chaos Harness Suite with 150ms visual stagger
   const handleRunChaos = async () => {
     setIsLoading(true);
     try {
       const data = await apiRequest<any>('/api/chaos/run', { method: 'POST' });
       if (data.success && data.report) {
-        setChaosResults(data.report.results || []);
+        const fullResults = data.report.results || [];
+        setChaosResults([]);
+        for (let i = 0; i < fullResults.length; i++) {
+          await new Promise((resolve) => setTimeout(resolve, 150));
+          setChaosResults((prev) => [...prev, fullResults[i]]);
+        }
         if (currentDeal) {
           await refreshLedger(currentDeal.dealId);
         }
@@ -294,6 +299,12 @@ export const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Open Chaos Drawer AND automatically trigger execution
+  const handleOpenChaos = async () => {
+    setIsChaosOpen(true);
+    await handleRunChaos();
   };
 
   // Fetch Payee Statement
@@ -319,7 +330,7 @@ export const App: React.FC = () => {
         onLoadCreatorPreset={handleLoadCreatorPreset}
         onRunBoundarySale={handleRunBoundarySale}
         onRunRefund={() => handleRunRefund()}
-        onOpenChaos={() => setIsChaosOpen(true)}
+        onOpenChaos={handleOpenChaos}
         isLoading={isLoading}
         apiConnected={apiConnected}
       />
@@ -379,7 +390,7 @@ export const App: React.FC = () => {
             auditVerification={auditVerification}
             onExpressCapture={handleRunBoundarySale}
             onTriggerRefund={handleRunRefund}
-            onOpenChaos={() => setIsChaosOpen(true)}
+            onOpenChaos={handleOpenChaos}
             isLoading={isLoading}
           />
         )}

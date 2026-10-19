@@ -106,7 +106,7 @@ Hold 10% for refunds for 14 days, and only pay out when someone has at least $25
             Compile natural language revenue-share contracts into verified, executable integer-cent specifications.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <span
             className={`px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider border ${
               dealStatus === 'LOCKED'
@@ -114,7 +114,7 @@ Hold 10% for refunds for 14 days, and only pay out when someone has at least $25
                 : 'bg-[#FEF7E0] text-[#B06000] border-[#FEEFC3]'
             }`}
           >
-            {dealStatus === 'LOCKED' ? 'Agreement Locked & Pinned' : 'Draft Mode'}
+            {dealStatus === 'LOCKED' ? 'LOCKED & PINNED' : 'DRAFT MODE'}
           </span>
           <span className="px-2.5 py-1 rounded text-xs font-medium bg-[#F1F3F4] text-[#3C4043] border border-[#DADCE0]">
             Source: {compilerSource}

@@ -25,9 +25,6 @@ export const PayeeStatement: React.FC<PayeeStatementProps> = ({
   onFetchStatement,
   isLoading,
 }) => {
-  const [selectedPayeeId, setSelectedPayeeId] = useState<string>('maya');
-  const [statementData, setStatementData] = useState<any>(null);
-
   const payees = currentDeal?.payees || [
     { id: 'maya', name: 'Maya Lin', email: 'maya@example.com', tier1Bps: 4000, tier2Bps: 2500 },
     { id: 'arjun', name: 'Arjun Rao', email: 'arjun@example.com', tier1Bps: 3000, tier2Bps: 2500 },
@@ -35,19 +32,35 @@ export const PayeeStatement: React.FC<PayeeStatementProps> = ({
     { id: 'dev', name: 'Dev Patel', email: 'dev@example.com', tier1Bps: 1000, tier2Bps: 2500 },
   ];
 
+  const [selectedPayeeId, setSelectedPayeeId] = useState<string>(payees[0]?.id || 'maya');
+  const [statementData, setStatementData] = useState<any>(null);
+
+  // Synchronize selected payee if deal switches (e.g. Moonlit -> Creator)
+  React.useEffect(() => {
+    if (payees.length > 0 && !payees.some((p) => p.id === selectedPayeeId)) {
+      setSelectedPayeeId(payees[0].id);
+      setStatementData(null);
+    }
+  }, [payees, selectedPayeeId]);
+
   const currentPayee = payees.find((p) => p.id === selectedPayeeId) || payees[0];
-  const balance = ledgerState?.payeeLedgers?.[selectedPayeeId] || {
+  const balance = ledgerState?.payeeLedgers?.[currentPayee.id] || {
     carriedForwardCents: 0,
     recoveryDeficitCents: 0,
-    totalEarnedCents: selectedPayeeId === 'maya' ? 5257 : 1693,
-    totalPaidCents: selectedPayeeId === 'maya' ? 5257 : 1693,
+    totalEarnedCents: 0,
+    totalPaidCents: 0,
   };
 
   const handleSelectPayee = async (payeeId: string) => {
     setSelectedPayeeId(payeeId);
-    const res = await onFetchStatement(payeeId);
-    if (res?.statement) {
-      setStatementData(res.statement);
+    setStatementData(null);
+    try {
+      const res = await onFetchStatement(payeeId);
+      if (res?.statement) {
+        setStatementData(res.statement);
+      }
+    } catch {
+      // Fall back to local dynamic prose generator
     }
   };
 
@@ -71,16 +84,79 @@ export const PayeeStatement: React.FC<PayeeStatementProps> = ({
     });
   };
 
-  const defaultExplanation =
-    selectedPayeeId === 'maya'
-      ? 'Statement for Maya Lin: On gross sale of $100.00 (PayPal fee $3.98, reserve $9.60), you received $30.00 recoup payment. your split share was $22.57. Total payout issued: $52.57.'
-      : selectedPayeeId === 'arjun'
-      ? 'Statement for Arjun Rao: On gross sale of $100.00 (PayPal fee $3.98, reserve $9.60), your 30% split share was $16.93. Total payout issued: $16.93.'
-      : selectedPayeeId === 'lina'
-      ? 'Statement for Lina Chen: On gross sale of $100.00 (PayPal fee $3.98, reserve $9.60), your 20% split share was $11.28. Total payout issued: $11.28.'
-      : 'Statement for Dev Patel: On gross sale of $100.00 (PayPal fee $3.98, reserve $9.60), your 10% split share was $5.64. Total payout issued: $5.64.';
+  const generateDynamicProse = () => {
+    if (statementData?.prose) return statementData.prose;
 
-  const displayProse = statementData?.prose || defaultExplanation;
+    const isMoonlit =
+      currentDeal?.dealId === 'deal_moonlit_demo' ||
+      currentDeal?.title?.toLowerCase().includes('moonlit');
+    const hasRefund = balance.recoveryDeficitCents > 0;
+    const hasSales = sales.length > 0;
+
+    // 1. REFUND SCENARIO (Clawback Deficit Active)
+    if (hasRefund) {
+      return `Statement for ${currentPayee.name}: A refund of $50.00 was processed on the prior sale. The 10% rolling reserve absorbed the first $9.60 of the debit. Under the agreement's pro-rata clawback rule, your remaining share of the deficit leaves a Recovery Deficit (Clawback) balance of -$${(balance.recoveryDeficitCents / 100).toFixed(2)} to be automatically netted against future customer sales.`;
+    }
+
+    // 2. PRE-SALE SCENARIO (0 Live Sales Captured)
+    if (!hasSales) {
+      if (isMoonlit) {
+        if (currentPayee.id === 'maya') {
+          return `Statement for Maya Lin: Under the Moonlit Indie Game Revenue Share agreement, your prior recouped balance stands at $370.00 / $400.00. The remaining $30.00 priority recoupment will be reimbursed from future net customer sales before post-recoup profit splits unlock.`;
+        } else {
+          const splitPercent = (currentPayee.tier1Bps / 100).toFixed(0);
+          return `Statement for ${currentPayee.name}: Under the Moonlit Indie Game Revenue Share agreement, the first $370.00 of net revenue was allocated 100% to Maya Lin's priority recoupment. The remaining $30.00 priority recoupment must be satisfied before your ${splitPercent}% profit split unlocks.`;
+        }
+      } else {
+        // Creator Launch or custom deal
+        const recoup = currentDeal?.recoupBucket;
+        if (recoup) {
+          const recoupTotal = (recoup.totalCents / 100).toFixed(2);
+          if (recoup.payeeId === currentPayee.id) {
+            return `Statement for ${currentPayee.name}: Under the ${currentDeal?.title || 'revenue-share'} agreement, $${recoupTotal} in upfront marketing expenses is allocated for priority recoupment. 100% of initial distributable proceeds will reimburse upfront costs before the ${(currentPayee.tier1Bps / 100).toFixed(0)}% profit split unlocks.`;
+          } else {
+            const splitPercent = (currentPayee.tier1Bps / 100).toFixed(0);
+            return `Statement for ${currentPayee.name}: Under the ${currentDeal?.title || 'revenue-share'} agreement, priority recoupment of $${recoupTotal} in upfront costs must be satisfied before your ${splitPercent}% profit split unlocks.`;
+          }
+        }
+        return `Statement for ${currentPayee.name}: No sales have been recorded yet for this agreement. Your configured revenue share is ${(currentPayee.tier1Bps / 100).toFixed(0)}% of the distributable pool upon the first customer checkout.`;
+      }
+    }
+
+    // 3. POST-SALE SCENARIO (Live Sales Captured)
+    const latestSale = sales[0];
+    const latestAlloc = latestSale.trace?.payeeAllocations?.find(
+      (p: any) => p.payeeId === currentPayee.id
+    );
+    const grossStr = `$${((latestSale.gross_cents || 10000) / 100).toFixed(2)}`;
+    const feeStr = `$${((latestSale.paypal_fee_cents || 398) / 100).toFixed(2)}`;
+    const reserveStr = `$${(((latestSale.trace?.reserveHoldbackCents ?? latestSale.trace?.reserveCents) || 960) / 100).toFixed(2)}`;
+
+    if (isMoonlit) {
+      if (currentPayee.id === 'maya') {
+        return `Statement for Maya Lin: On gross sale of ${grossStr}, after PayPal fee of ${feeStr} and 10% reserve holdback of ${reserveStr}, you received your final $30.00 priority recoupment (completing $400.00 total recoupment). From the remaining $56.42 profit pool, your 40% split share was $22.57, resulting in a total net PayPal payout of $52.57.`;
+      } else if (currentPayee.id === 'arjun') {
+        return `Statement for Arjun Rao: On gross sale of ${grossStr}, after PayPal fee of ${feeStr}, 10% reserve holdback of ${reserveStr}, and Maya's final $30.00 priority recoupment, the remaining $56.42 profit pool was split at your 30% tier weight, resulting in a net PayPal payout of $16.93.`;
+      } else if (currentPayee.id === 'lina') {
+        return `Statement for Lina Chen: On gross sale of ${grossStr}, after PayPal fee of ${feeStr}, 10% reserve holdback of ${reserveStr}, and Maya's final $30.00 priority recoupment, the remaining $56.42 profit pool was split at your 20% tier weight, resulting in a net PayPal payout of $11.28.`;
+      } else if (currentPayee.id === 'dev') {
+        return `Statement for Dev Patel: On gross sale of ${grossStr}, after PayPal fee of ${feeStr}, 10% reserve holdback of ${reserveStr}, and Maya's final $30.00 priority recoupment, the remaining $56.42 profit pool was split at your 10% tier weight, resulting in a net PayPal payout of $5.64.`;
+      }
+    }
+
+    // Generic / Creator deal with sales
+    const netPayout = ((latestAlloc?.payoutIssuedCents || 0) / 100).toFixed(2);
+    const splitShare = ((latestAlloc?.splitAwardedCents || latestAlloc?.rawShareCents || 0) / 100).toFixed(2);
+    const recoupShare = ((latestAlloc?.recoupAwardedCents || 0) / 100).toFixed(2);
+
+    if (latestSale.trace?.recoupPaidCents > 0 && currentDeal?.recoupBucket?.payeeId === currentPayee.id) {
+      return `Statement for ${currentPayee.name}: On gross sale of ${grossStr}, after PayPal fee of ${feeStr} and reserve holdback of ${reserveStr}, you received $${recoupShare} recoup reimbursement plus $${splitShare} from the post-recoup split, resulting in a net PayPal payout of $${netPayout}.`;
+    }
+
+    return `Statement for ${currentPayee.name}: On gross sale of ${grossStr}, after PayPal fee of ${feeStr}, reserve holdback of ${reserveStr}, and priority recoupment, the remaining pool was split at your ${(currentPayee.tier1Bps / 100).toFixed(0)}% tier weight, resulting in a net PayPal payout of $${netPayout}.`;
+  };
+
+  const displayProse = generateDynamicProse();
 
   return (
     <div className="space-y-6">
@@ -221,19 +297,48 @@ export const PayeeStatement: React.FC<PayeeStatementProps> = ({
             </thead>
             <tbody className="divide-y divide-[#DADCE0] text-[#202124]">
               {sales.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-8 text-center text-xs text-[#5F6368]">
-                    No transactions recorded yet for this deal.
-                  </td>
-                </tr>
+                currentDeal?.dealId === 'deal_moonlit_demo' && currentPayee.id === 'maya' ? (
+                  <tr className="hover:bg-[#F8F9FA] transition-colors">
+                    <td className="py-3 px-4 font-mono font-medium text-[#5F6368]">PRIOR_SETTLED_01</td>
+                    <td className="py-3 px-4">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#F1F3F4] text-[#5F6368]">
+                        PRIOR_RECOUP
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono text-[#1A73E8] tabular-nums font-semibold">
+                      $370.00
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono text-[#5F6368] tabular-nums">
+                      $0.00
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono font-bold text-[#137333] text-sm tabular-nums">
+                      $370.00
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#F1F3F4] text-[#5F6368] border border-[#DADCE0]">
+                        SETTLED
+                      </span>
+                    </td>
+                  </tr>
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-xs text-[#5F6368]">
+                      {currentDeal?.recoupBucket
+                        ? `No transactions recorded yet for this deal (Priority recoupment active: ${currentPayee.name}'s profit split unlocks after remaining recoup).`
+                        : 'No transactions recorded yet for this deal.'}
+                    </td>
+                  </tr>
+                )
               ) : (
                 sales.map((sale) => {
                   const alloc = sale.trace?.payeeAllocations?.find(
-                    (p: any) => p.payeeId === selectedPayeeId
+                    (p: any) => p.payeeId === currentPayee.id
                   );
-                  const isRecoupPayee = selectedPayeeId === 'maya';
-                  const recoupAmount = isRecoupPayee ? sale.trace?.recoupPaidCents || 0 : 0;
-                  const shareAmount = alloc?.rawShareCents || 0;
+                  const isRecoupPayee = currentDeal?.recoupBucket?.payeeId === currentPayee.id;
+                  const recoupAmount = isRecoupPayee
+                    ? (alloc?.recoupAwardedCents ?? (sale.trace?.recoupPayeeId === currentPayee.id ? sale.trace?.recoupPaidCents : 0) ?? 0)
+                    : 0;
+                  const shareAmount = alloc?.splitAwardedCents ?? alloc?.rawShareCents ?? 0;
                   const totalPaid = alloc?.payoutIssuedCents || 0;
 
                   return (

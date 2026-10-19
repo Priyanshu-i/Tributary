@@ -80,10 +80,24 @@ export const ChaosDrawer: React.FC<ChaosDrawerProps> = ({
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
           {results.length === 0 ? (
             <div className="py-16 text-center space-y-3">
-              <Zap className="w-8 h-8 text-[#80868B] mx-auto stroke-[1.5]" />
-              <p className="text-xs text-[#5F6368]">
-                Click "Run All 8 Chaos Tests" to execute the test suite against PayPal gateway failure hooks.
-              </p>
+              {isLoading ? (
+                <>
+                  <RotateCw className="w-8 h-8 text-[#1A73E8] mx-auto animate-spin" />
+                  <p className="text-xs text-[#202124] font-semibold">
+                    Executing 8 Production Failure Scenarios...
+                  </p>
+                  <p className="text-[11px] text-[#5F6368]">
+                    Injecting idempotency retries, signature tampering, and invariant violations
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Zap className="w-8 h-8 text-[#80868B] mx-auto stroke-[1.5]" />
+                  <p className="text-xs text-[#5F6368]">
+                    Click "Run All 8 Chaos Tests" to execute the test suite against PayPal gateway failure hooks.
+                  </p>
+                </>
+              )}
             </div>
           ) : (
             results.map((r, i) => (
