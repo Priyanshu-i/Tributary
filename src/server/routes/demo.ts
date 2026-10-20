@@ -2,8 +2,75 @@ import { Hono } from 'hono';
 import { AppState } from '../state.js';
 import { DealSpec } from '../../core-engine/types.js';
 
+export function resetMoonlitClimax(state: AppState): DealSpec {
+  const moonlitDeal: DealSpec = {
+    dealId: 'deal_moonlit_demo',
+    version: 1,
+    title: 'Moonlit Indie Game Revenue Share Agreement',
+    payees: [
+      { id: 'maya', name: 'Maya Lin', email: process.env.PAYPAL_PAYEE_MAYA_EMAIL || process.env.PAYPAL_PAYEE_MAYA || 'maya-payee@personal.example.com', tier1Bps: 4000, tier2Bps: 2500 },
+      { id: 'arjun', name: 'Arjun Rao', email: process.env.PAYPAL_PAYEE_ARJUN_EMAIL || process.env.PAYPAL_PAYEE_ARJUN || 'arjun-payee@personal.example.com', tier1Bps: 3000, tier2Bps: 2500 },
+      { id: 'lina', name: 'Lina Chen', email: process.env.PAYPAL_PAYEE_LINA_EMAIL || process.env.PAYPAL_PAYEE_LINA || 'lina-payee@personal.example.com', tier1Bps: 2000, tier2Bps: 2500 },
+      { id: 'dev', name: 'Dev Patel', email: process.env.PAYPAL_PAYEE_DEV_EMAIL || process.env.PAYPAL_PAYEE_DEV || 'dev-payee@personal.example.com', tier1Bps: 1000, tier2Bps: 2500 },
+    ],
+    recoupBucket: {
+      payeeId: 'maya',
+      totalCents: 40000, // $400 upfront art cost
+      feeBasis: 'NET_OF_FEES',
+    },
+    tierThresholdNetCents: 200000, // $2,000 net
+    reserveBps: 1000, // 10%
+    holdbackDays: 14,
+    minPayoutCents: 0, // set 0 for raw item display in demo
+    clawbackRule: 'PRO_RATA_SALE_SHARE',
+  };
+
+  // 1. Wipe all old sales, batches, items, and audit records cleanly
+  state.db.prepare('DELETE FROM sales').run();
+  state.db.prepare('DELETE FROM payout_batches').run();
+  state.db.prepare('DELETE FROM payout_items').run();
+  state.db.prepare('DELETE FROM audit_log').run();
+
+  // 2. Save and lock deal specification
+  state.repo.saveDeal(moonlitDeal, 'DRAFT');
+  state.repo.lockDeal(moonlitDeal.dealId);
+
+  // 3. Seed Maya at exactly $370.00 of $400.00 recouped!
+  state.repo.setSeededLedgerState(moonlitDeal.dealId, {
+    cumulativeNetCents: 37000,
+    recoupedCents: 37000,
+    availableReserveCents: 0,
+    payeeLedgers: {
+      maya: { carriedForwardCents: 0, recoveryDeficitCents: 0, totalEarnedCents: 37000, totalPaidCents: 37000 },
+      arjun: { carriedForwardCents: 0, recoveryDeficitCents: 0, totalEarnedCents: 0, totalPaidCents: 0 },
+      lina: { carriedForwardCents: 0, recoveryDeficitCents: 0, totalEarnedCents: 0, totalPaidCents: 0 },
+      dev: { carriedForwardCents: 0, recoveryDeficitCents: 0, totalEarnedCents: 0, totalPaidCents: 0 },
+    },
+  });
+
+  return moonlitDeal;
+}
+
 export function createDemoRouter(state: AppState) {
   const router = new Hono();
+
+  // Dedicated Reset Climax endpoint
+  router.post('/reset-moonlit-climax', async (c) => {
+    try {
+      const deal = resetMoonlitClimax(state);
+      return c.json({
+        success: true,
+        dealId: deal.dealId,
+        title: deal.title,
+        recoupedCents: 37000,
+        totalRecoupCents: 40000,
+        remainingRecoupCents: 3000,
+        message: 'Reset complete: Maya is at $370.00 / $400.00 recouped. 0 old sales or refunds exist.',
+      });
+    } catch (err: any) {
+      return c.json({ error: err.message }, 500);
+    }
+  });
 
   router.post('/load-preset', async (c) => {
     try {
@@ -11,44 +78,7 @@ export function createDemoRouter(state: AppState) {
       const preset = body.preset || 'moonlit';
 
       if (preset === 'moonlit') {
-        const moonlitDeal: DealSpec = {
-          dealId: 'deal_moonlit_demo',
-          version: 1,
-          title: 'Moonlit Indie Game Revenue Share Agreement',
-          payees: [
-            { id: 'maya', name: 'Maya Lin', email: process.env.PAYPAL_PAYEE_MAYA_EMAIL || process.env.PAYPAL_PAYEE_MAYA || 'maya-payee@personal.example.com', tier1Bps: 4000, tier2Bps: 2500 },
-            { id: 'arjun', name: 'Arjun Rao', email: process.env.PAYPAL_PAYEE_ARJUN_EMAIL || process.env.PAYPAL_PAYEE_ARJUN || 'arjun-payee@personal.example.com', tier1Bps: 3000, tier2Bps: 2500 },
-            { id: 'lina', name: 'Lina Chen', email: process.env.PAYPAL_PAYEE_LINA_EMAIL || process.env.PAYPAL_PAYEE_LINA || 'lina-payee@personal.example.com', tier1Bps: 2000, tier2Bps: 2500 },
-            { id: 'dev', name: 'Dev Patel', email: process.env.PAYPAL_PAYEE_DEV_EMAIL || process.env.PAYPAL_PAYEE_DEV || 'dev-payee@personal.example.com', tier1Bps: 1000, tier2Bps: 2500 },
-          ],
-          recoupBucket: {
-            payeeId: 'maya',
-            totalCents: 40000, // $400 upfront art cost
-            feeBasis: 'NET_OF_FEES',
-          },
-          tierThresholdNetCents: 200000, // $2,000 net
-          reserveBps: 1000, // 10%
-          holdbackDays: 14,
-          minPayoutCents: 0, // set 0 for raw item display in demo
-          clawbackRule: 'PRO_RATA_SALE_SHARE',
-        };
-
-        state.repo.saveDeal(moonlitDeal, 'DRAFT');
-        state.repo.lockDeal(moonlitDeal.dealId);
-
-        // Seed Maya at exactly $370.00 of $400.00 recouped!
-        state.repo.setSeededLedgerState(moonlitDeal.dealId, {
-          cumulativeNetCents: 37000,
-          recoupedCents: 37000,
-          availableReserveCents: 0,
-          payeeLedgers: {
-            maya: { carriedForwardCents: 0, recoveryDeficitCents: 0, totalEarnedCents: 37000, totalPaidCents: 37000 },
-            arjun: { carriedForwardCents: 0, recoveryDeficitCents: 0, totalEarnedCents: 0, totalPaidCents: 0 },
-            lina: { carriedForwardCents: 0, recoveryDeficitCents: 0, totalEarnedCents: 0, totalPaidCents: 0 },
-            dev: { carriedForwardCents: 0, recoveryDeficitCents: 0, totalEarnedCents: 0, totalPaidCents: 0 },
-          },
-        });
-
+        const moonlitDeal = resetMoonlitClimax(state);
         return c.json({
           success: true,
           preset: 'moonlit',

@@ -44,8 +44,10 @@ export function createApp(customState?: AppState) {
   app.get('/health', healthHandler);
 
   // Mount API routers
+  const checkoutRouter = createCheckoutRouter(state);
   app.route('/api/deals', createDealsRouter(state));
-  app.route('/api/checkout', createCheckoutRouter(state));
+  app.route('/api/checkout', checkoutRouter);
+  app.route('/api/sales', checkoutRouter);
   app.route('/api/webhooks', createWebhooksRouter(state));
   app.route('/api/chaos', createChaosRouter(state));
   app.route('/api/demo', createDemoRouter(state));

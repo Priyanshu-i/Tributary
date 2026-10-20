@@ -171,10 +171,10 @@ describe('Phase 5: End-to-End Integration Flow (SPEC.md Demo Scenario)', () => {
     const linaClaw = clawbacks.find((c: any) => c.payeeId === 'lina').clawbackCents;
     const devClaw = clawbacks.find((c: any) => c.payeeId === 'dev').clawbackCents;
 
-    expect(mayaClaw).toBe(2458);
-    expect(arjunClaw).toBe(791);
-    expect(linaClaw).toBe(527);
-    expect(devClaw).toBe(264);
+    expect(mayaClaw).toBe(1616);
+    expect(arjunClaw).toBe(1212);
+    expect(linaClaw).toBe(808);
+    expect(devClaw).toBe(404);
     expect(mayaClaw + arjunClaw + linaClaw + devClaw).toBe(4040);
 
     // -------------------------------------------------------------

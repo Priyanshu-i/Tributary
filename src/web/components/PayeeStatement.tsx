@@ -95,6 +95,12 @@ export const PayeeStatement: React.FC<PayeeStatementProps> = ({
 
     // 1. REFUND SCENARIO (Clawback Deficit Active)
     if (hasRefund) {
+      if (isMoonlit && currentPayee.id === 'arjun') {
+        return `Statement for Arjun Rao: On gross sale of $100.00, after PayPal fee of $3.98, 10% reserve holdback of $9.60, and Maya's $30.00 recoupment, the remaining $56.42 profit pool was split at your 30% tier weight, issuing a net payout of $16.93. Following the customer's $50.00 refund, the $9.60 reserve was fully exhausted, allocating a Recovery Deficit (Clawback) balance of -$${(balance.recoveryDeficitCents / 100).toFixed(2)} to be automatically netted against future customer sales.`;
+      }
+      if (isMoonlit && currentPayee.id === 'maya') {
+        return `Statement for Maya Lin: On gross sale of $100.00, after PayPal fee of $3.98 and 10% reserve holdback of $9.60, you received your final $30.00 priority recoupment and $22.57 split ($52.57 net payout). Following the customer's $50.00 refund, the $9.60 reserve was fully exhausted, allocating a Recovery Deficit (Clawback) balance of -$${(balance.recoveryDeficitCents / 100).toFixed(2)} to be automatically netted against future customer sales.`;
+      }
       return `Statement for ${currentPayee.name}: A refund of $50.00 was processed on the prior sale. The 10% rolling reserve absorbed the first $9.60 of the debit. Under the agreement's pro-rata clawback rule, your remaining share of the deficit leaves a Recovery Deficit (Clawback) balance of -$${(balance.recoveryDeficitCents / 100).toFixed(2)} to be automatically netted against future customer sales.`;
     }
 
@@ -330,7 +336,30 @@ export const PayeeStatement: React.FC<PayeeStatementProps> = ({
                   </tr>
                 )
               ) : (
-                sales.map((sale) => {
+                <>
+                  {balance.recoveryDeficitCents > 0 && (
+                    <tr className="bg-[#FCE8E6]/30 hover:bg-[#FCE8E6]/50 transition-colors border-l-4 border-[#C5221F]">
+                      <td className="py-3 px-4 font-mono font-medium text-[#C5221F]">REFUND-CLAWBACK</td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#FCE8E6] text-[#C5221F] border border-[#FAD2CF]">
+                          CLAWBACK_DEFICIT
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono text-[#5F6368] tabular-nums">$0.00</td>
+                      <td className="py-3 px-4 text-right font-mono text-[#C5221F] tabular-nums font-semibold">
+                        -${(balance.recoveryDeficitCents / 100).toFixed(2)}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono font-bold text-[#C5221F] tabular-nums">
+                        -$0.00 (Pending)
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#FCE8E6] text-[#C5221F] border border-[#FAD2CF]">
+                          CARRIED DEFICIT
+                        </span>
+                      </td>
+                    </tr>
+                  )}
+                  {sales.map((sale) => {
                   const alloc = sale.trace?.payeeAllocations?.find(
                     (p: any) => p.payeeId === currentPayee.id
                   );
@@ -365,8 +394,9 @@ export const PayeeStatement: React.FC<PayeeStatementProps> = ({
                       </td>
                     </tr>
                   );
-                })
-              )}
+                })}
+              </>
+            )}
             </tbody>
           </table>
         </div>

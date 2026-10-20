@@ -209,7 +209,7 @@ export function createCheckoutRouter(state: AppState) {
   });
 
   // 3. Trigger Post-Payout Refund (Captures Refund v2)
-  router.post('/sales/:id/refund', async (c) => {
+  const refundHandler = async (c: any) => {
     try {
       const saleId = c.req.param('id');
       const body = await c.req.json();
@@ -262,7 +262,10 @@ export function createCheckoutRouter(state: AppState) {
     } catch (err: any) {
       return c.json({ error: err.message }, 500);
     }
-  });
+  };
+
+  router.post('/sales/:id/refund', refundHandler);
+  router.post('/:id/refund', refundHandler);
 
   // 4. Poll Live PayPal Batch Status (GET /v1/payments/payouts/{batch_id})
   router.get('/payouts/:batchId', async (c) => {

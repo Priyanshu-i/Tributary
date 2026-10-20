@@ -5,11 +5,15 @@ import { Simulator } from './components/Simulator.js';
 import { LiveLedger } from './components/LiveLedger.js';
 import { PayeeStatement } from './components/PayeeStatement.js';
 import { ChaosDrawer } from './components/ChaosDrawer.js';
+import { LaunchSlides } from './components/LaunchSlides.js';
 import { DealSpec } from '../core-engine/types.js';
 import { ChaosTestResult } from '../paypal-gateway/types.js';
 import { apiRequest, checkApiHealth } from './lib/api.js';
 
 export const App: React.FC = () => {
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const slideParam = urlParams?.get('slide');
+
   const [activeTab, setActiveTab] = useState<'deal-studio' | 'simulator' | 'ledger' | 'statements'>('deal-studio');
   const [currentDeal, setCurrentDeal] = useState<DealSpec | null>(null);
   const [dealStatus, setDealStatus] = useState<'DRAFT' | 'LOCKED'>('LOCKED');
@@ -130,6 +134,19 @@ export const App: React.FC = () => {
     };
     init();
   }, [handleLoadMoonlitPreset]);
+
+  // Expose global helpers for demo / test script synchronization
+  useEffect(() => {
+    (window as any).__loadMoonlitPreset = handleLoadMoonlitPreset;
+    (window as any).__refreshLedger = (dealId?: string) => refreshLedger(dealId || currentDeal?.dealId || 'deal_moonlit_demo');
+  }, [handleLoadMoonlitPreset, refreshLedger, currentDeal?.dealId]);
+
+  // Sync ledger whenever active tab changes to ledger or statements
+  useEffect(() => {
+    if (activeTab === 'ledger' || activeTab === 'statements') {
+      refreshLedger(currentDeal?.dealId || 'deal_moonlit_demo');
+    }
+  }, [activeTab, currentDeal?.dealId, refreshLedger]);
 
   // Toggle Pause (Kill-Switch)
   const handleTogglePause = async () => {
@@ -318,8 +335,28 @@ export const App: React.FC = () => {
     }
   };
 
+  // Launch Presentation Modal Overlay State (defaults to URL param if set)
+  const [modalSlide, setModalSlide] = useState<'hook' | 'architecture' | null>(
+    slideParam === 'hook' || slideParam === 'architecture' ? (slideParam as any) : null
+  );
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-[#202124] flex flex-col font-sans">
+      {/* Launch Presentation Modal Overlay (Hook / Architecture) */}
+      {modalSlide && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-white">
+          <LaunchSlides
+            slide={modalSlide}
+            onNavigateToApp={() => {
+              setModalSlide(null);
+              if (window.history.pushState) {
+                window.history.pushState({}, '', window.location.pathname);
+              }
+            }}
+          />
+        </div>
+      )}
+
       {/* Top Navigation & Judge Quick-Load Bar */}
       <Navbar
         activeTab={activeTab}
@@ -331,6 +368,8 @@ export const App: React.FC = () => {
         onRunBoundarySale={handleRunBoundarySale}
         onRunRefund={() => handleRunRefund()}
         onOpenChaos={handleOpenChaos}
+        onOpenOverview={() => setModalSlide('hook')}
+        onOpenArchitecture={() => setModalSlide('architecture')}
         isLoading={isLoading}
         apiConnected={apiConnected}
       />
@@ -360,8 +399,12 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      {/* Main Content Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+      {/* Main Content Viewport (Isolated Zoom Stage) */}
+      <main
+        id="app-zoom-stage"
+        style={{ transformOrigin: '50% 50%', transition: 'transform 650ms cubic-bezier(0.22, 1, 0.36, 1)' }}
+        className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8"
+      >
         {activeTab === 'deal-studio' && (
           <DealStudio
             currentDeal={currentDeal}

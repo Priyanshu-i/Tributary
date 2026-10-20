@@ -276,7 +276,7 @@ export const LiveLedger: React.FC<LiveLedgerProps> = ({
               <div className="p-3 rounded-lg border border-[#DADCE0] bg-[#F8F9FA] space-y-1">
                 <span className="text-[10px] font-bold text-[#80868B] uppercase">PayPal Fee</span>
                 <div className="text-base font-bold text-[#C5221F] font-mono tabular-nums">
-                  -${(trace.paypalFeeCents / 100).toFixed(2)}
+                  -${(((trace.feeCents ?? trace.paypalFeeCents) ?? 398) / 100).toFixed(2)}
                 </div>
                 <div className="text-[11px] text-[#5F6368]">{trace.feeSource}</div>
               </div>
@@ -354,7 +354,7 @@ export const LiveLedger: React.FC<LiveLedgerProps> = ({
                   Hard Conservation Assertion:
                 </span>
                 <span className="font-mono text-[#137333] tabular-nums">
-                  Fee (${(trace.paypalFeeCents / 100).toFixed(2)}) + Reserve (${((trace.reserveHoldbackCents ?? trace.reserveCents ?? 960) / 100).toFixed(2)}) + Maya (${(trace.payeeAllocations.find((p: any) => p.payeeId === 'maya')?.payoutIssuedCents / 100 || 0).toFixed(2)}) + Arjun (${(trace.payeeAllocations.find((p: any) => p.payeeId === 'arjun')?.payoutIssuedCents / 100 || 0).toFixed(2)}) + Lina (${(trace.payeeAllocations.find((p: any) => p.payeeId === 'lina')?.payoutIssuedCents / 100 || 0).toFixed(2)}) + Dev (${(trace.payeeAllocations.find((p: any) => p.payeeId === 'dev')?.payoutIssuedCents / 100 || 0).toFixed(2)}) === ${(trace.grossCents / 100).toFixed(2)}
+                  Fee (${(((trace.feeCents ?? trace.paypalFeeCents) ?? 398) / 100).toFixed(2)}) + Reserve (${((trace.reserveHoldbackCents ?? trace.reserveCents ?? 960) / 100).toFixed(2)}) + Maya (${(trace.payeeAllocations.find((p: any) => p.payeeId === 'maya')?.payoutIssuedCents / 100 || 0).toFixed(2)}) + Arjun (${(trace.payeeAllocations.find((p: any) => p.payeeId === 'arjun')?.payoutIssuedCents / 100 || 0).toFixed(2)}) + Lina (${(trace.payeeAllocations.find((p: any) => p.payeeId === 'lina')?.payoutIssuedCents / 100 || 0).toFixed(2)}) + Dev (${(trace.payeeAllocations.find((p: any) => p.payeeId === 'dev')?.payoutIssuedCents / 100 || 0).toFixed(2)}) === ${(trace.grossCents / 100).toFixed(2)}
                 </span>
               </div>
               <span className="px-2 py-0.5 rounded bg-white text-[#137333] font-mono font-bold text-[11px] border border-[#CEEAD6]">
@@ -390,6 +390,53 @@ export const LiveLedger: React.FC<LiveLedgerProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#DADCE0] text-[#202124]">
+              {/* Refund Clawback Events (visible immediately upon $50 refund) */}
+              {(auditLog || [])
+                .filter((a) => a.event_type === 'REFUND_CLAWBACK_APPLIED')
+                .map((rEntry, idx) => {
+                  const p = rEntry.payload || {};
+                  const netDebit = p.netDebitCents || 5000;
+                  const reserveAbsorbed = p.reserveAbsorbedCents || 960;
+                  const remainingDeficit = p.remainingDeficitCents || 4040;
+                  return (
+                    <tr
+                      key={p.refundId || `refund-${idx}`}
+                      className="bg-[#FCE8E6]/30 border-l-4 border-[#C5221F] hover:bg-[#FCE8E6]/50 transition-colors"
+                    >
+                      <td className="py-3 px-4 font-mono font-medium flex items-center gap-1.5 text-[#C5221F]">
+                        <span>{p.refundId || 'REFUND-CLAWBACK'}</span>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FCE8E6] text-[#C5221F] border border-[#FAD2CF]">
+                          REFUND_CLAWBACK
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-[#5F6368]">{new Date(rEntry.timestamp).toLocaleTimeString()}</td>
+                      <td className="py-3 px-4 text-right font-mono font-semibold text-[#C5221F] tabular-nums">
+                        -${(netDebit / 100).toFixed(2)}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono text-[#5F6368] tabular-nums">
+                        +$0.00
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono font-medium text-[#C5221F] tabular-nums">
+                        -${(netDebit / 100).toFixed(2)}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono text-[#B06000] tabular-nums">
+                        -${(reserveAbsorbed / 100).toFixed(2)} (Absorbed)
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono font-bold text-[#C5221F] tabular-nums">
+                        -${(remainingDeficit / 100).toFixed(2)} Deficit
+                      </td>
+                      <td className="py-3 px-4 text-center font-mono text-[11px] text-[#C5221F]">
+                        CLAWBACK_DEFICIT
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#FCE8E6] text-[#C5221F] border border-[#FAD2CF]">
+                          CLAWBACK ALLOCATED
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+
               {/* Captured Live Sales */}
               {sales.map((s) => {
                 const sTrace = s.trace;

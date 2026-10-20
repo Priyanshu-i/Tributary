@@ -182,10 +182,10 @@ describe('Phase 1: Pure Integer-Cent Waterfall & Refund Clawback Engine', () => 
       expect(mayaDeficit + arjunDeficit + linaDeficit + devDeficit).toBe(4040);
       expect(refundResult.reserveAbsorbedCents + (mayaDeficit + arjunDeficit + linaDeficit + devDeficit)).toBe(5000);
 
-      expect(mayaDeficit).toBe(2458);
-      expect(arjunDeficit).toBe(791);
-      expect(linaDeficit).toBe(527);
-      expect(devDeficit).toBe(264);
+      expect(mayaDeficit).toBe(1616);
+      expect(arjunDeficit).toBe(1212);
+      expect(linaDeficit).toBe(808);
+      expect(devDeficit).toBe(404);
 
       // Step C: Subsequent $100 sale nets out these deficits automatically!
       const subsequentSaleTrace = executeSaleWaterfall(
@@ -195,11 +195,11 @@ describe('Phase 1: Pure Integer-Cent Waterfall & Refund Clawback Engine', () => 
       );
 
       // In this sale, recoup is already 100% done, so full D0 = 8642 splits 40/30/20/10
-      // Maya gross awarded: 3457 cents. Withheld: 2458 cents. Net payout: 999 cents.
+      // Maya gross awarded: 3457 cents. Withheld: 1616 cents. Net payout: 1841 cents.
       const mayaSubsequent = subsequentSaleTrace.payeeAllocations.find((p) => p.payeeId === 'maya')!;
-      expect(mayaSubsequent.recoveryWithheldCents).toBe(2458);
+      expect(mayaSubsequent.recoveryWithheldCents).toBe(1616);
       expect(mayaSubsequent.newDeficitCents).toBe(0); // 100% recovered!
-      expect(mayaSubsequent.payoutIssuedCents).toBe(mayaSubsequent.grossAwardedCents - 2458);
+      expect(mayaSubsequent.payoutIssuedCents).toBe(mayaSubsequent.grossAwardedCents - 1616);
 
       // Hard conservation check holds on the recovery netting sale
       expect(subsequentSaleTrace.invariantVerified).toBe(true);

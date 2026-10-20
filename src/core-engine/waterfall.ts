@@ -387,7 +387,11 @@ export function executeRefundClawback(
     let allocatedDeficits: number[];
 
     if (dealSpec.clawbackRule === 'PRO_RATA_SALE_SHARE') {
-      const originalEarnings = originalSaleTrace.payeeAllocations.map((p) => p.grossAwardedCents);
+      // In revenue share contracts, recoupment covers sunken fixed production costs;
+      // post-payout deficit clawbacks are apportioned pro-rata to profit split earnings.
+      const originalEarnings = originalSaleTrace.payeeAllocations.map(
+        (p) => (p.splitAwardedCents ?? Math.max(0, p.grossAwardedCents - (p.recoupAwardedCents || 0)))
+      );
       const totalOriginal = originalEarnings.reduce((a, b) => a + b, 0);
 
       if (totalOriginal > 0) {

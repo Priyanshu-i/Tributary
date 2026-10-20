@@ -12,6 +12,8 @@ import {
   CheckCircle2,
   ArrowRight,
   ExternalLink,
+  Sparkles,
+  Layers,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -24,6 +26,8 @@ interface NavbarProps {
   onRunBoundarySale: () => void;
   onRunRefund: () => void;
   onOpenChaos: () => void;
+  onOpenOverview?: () => void;
+  onOpenArchitecture?: () => void;
   isLoading: boolean;
   apiConnected: boolean;
 }
@@ -38,6 +42,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onRunBoundarySale,
   onRunRefund,
   onOpenChaos,
+  onOpenOverview,
+  onOpenArchitecture,
   isLoading,
   apiConnected,
 }) => {
@@ -57,6 +63,28 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Enterprise Revenue-Share Settlement
               </span>
             </div>
+          </div>
+
+          {/* Overview & Architecture Ghost Buttons */}
+          <div className="flex items-center gap-1 ml-1 pl-3 border-l border-[#DADCE0]">
+            <button
+              onClick={onOpenOverview}
+              type="button"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-[#5F6368] hover:text-[#1A73E8] hover:bg-[#E8F0FE] active:bg-[#D2E3FC] transition-colors"
+              title="Open Launch Hook Overview Modal"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#1A73E8]" />
+              <span>Overview</span>
+            </button>
+            <button
+              onClick={onOpenArchitecture}
+              type="button"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-[#5F6368] hover:text-[#137333] hover:bg-[#E6F4EA] active:bg-[#CEEAD6] transition-colors"
+              title="Open Strict AI Air-Gap Architecture Modal"
+            >
+              <Layers className="w-3.5 h-3.5 text-[#137333]" />
+              <span>Architecture</span>
+            </button>
           </div>
 
           <div className="hidden lg:flex items-center gap-2 ml-4 pl-4 border-l border-[#DADCE0]">
